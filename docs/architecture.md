@@ -34,6 +34,14 @@ CLIENT -> API -> LLM ADAPTER -> MODEL PROVIDER -> ZT&SI RUNTIME -> FIREWALL -> R
 
 The v0.3 LLM Adapter receives application input at `/generate`, calls a provider such as `mock`, sends the generated candidate output through the existing ZT&SI runtime, logs generated events to `runtime_logs/generate_events.jsonl`, and returns the certified firewall response.
 
+## Semantic Drift Intelligence Layer
+
+```text
+INPUT + CANDIDATE OUTPUT -> EMBEDDINGS -> SEMANTIC DRIFT -> CONTRADICTION -> RECURSIVE INSTABILITY -> GOVERNANCE -> FIREWALL
+```
+
+The v0.4 intelligence layer computes semantic similarity, contradiction score, recursive instability score, and final drift score. These metrics are logged to `runtime_logs/drift_metrics.jsonl` and returned by `/evaluate` and `/generate`.
+
 ## Modules
 
 - `state.py` defines `SemanticState`.
@@ -50,3 +58,8 @@ The v0.3 LLM Adapter receives application input at `/generate`, calls a provider
 - `src/llm/mock_provider.py` implements mock-first stable and unstable generation.
 - `src/llm/providers.py` registers provider names.
 - `src/llm/adapter.py` routes generated candidate outputs into ZT&SI runtime validation.
+- `src/intelligence/embeddings.py` provides optional sentence-transformer embeddings with local fallback.
+- `src/intelligence/semantic_drift.py` computes semantic continuity and topic divergence.
+- `src/intelligence/contradiction.py` detects logical reversal and conflicting claims.
+- `src/intelligence/recursive_instability.py` detects recursive destabilization language.
+- `src/intelligence/scoring.py` combines intelligence signals into the unified drift score.

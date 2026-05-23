@@ -21,7 +21,8 @@ class MockLLMProvider(BaseLLMProvider):
             )
 
         return (
-            "ZT&SI Stability Gateway response: the request is handled through "
-            "coherence, drift, governance, lineage, firewall, and runtime "
-            "stability validation before final output manifestation."
+            f"ZT&SI Stability Gateway response for: {input_text}. The runtime "
+            "stability governance path preserves coherence, measures drift, "
+            "records lineage, applies firewall validation, and permits final "
+            "output manifestation only after approval."
         )

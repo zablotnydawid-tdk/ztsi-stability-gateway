@@ -9,6 +9,9 @@ class EvaluateRequest(BaseModel):
 class EvaluateResponse(BaseModel):
     coherence_score: float
     drift_score: float
+    semantic_similarity: float
+    contradiction_score: float
+    recursive_instability_score: float
     governance_status: str
     firewall_status: str
     lineage_id: str
@@ -30,6 +33,9 @@ class GenerateResponse(BaseModel):
     candidate_output: str
     coherence_score: float
     drift_score: float
+    semantic_similarity: float
+    contradiction_score: float
+    recursive_instability_score: float
     governance_status: str
     firewall_status: str
     lineage_id: str

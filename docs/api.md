@@ -1,6 +1,6 @@
 # API
 
-The v0.2 runtime exposes both a Python function and a FastAPI REST API.
+The runtime exposes both a Python function and a FastAPI REST API.
 
 ```python
 from src.gateway.runtime import process
@@ -19,8 +19,13 @@ result = process(
     "candidate_output": str,
     "coherence_score": float,
     "drift_score": float,
+    "semantic_similarity": float,
+    "contradiction_score": float,
+    "recursive_instability_score": float,
     "governance_status": "APPROVED" | "REJECTED",
+    "firewall_status": "ALLOWED" | "BLOCKED",
     "lineage_id": str,
+    "timestamp": str,
     "final_status": "ALLOWED" | "BLOCKED",
 }
 ```
@@ -58,6 +63,23 @@ Request:
 }
 ```
 
+Response:
+
+```json
+{
+  "coherence_score": 1.0,
+  "drift_score": 0.0,
+  "semantic_similarity": 1.0,
+  "contradiction_score": 0.0,
+  "recursive_instability_score": 0.0,
+  "governance_status": "APPROVED",
+  "firewall_status": "ALLOWED",
+  "lineage_id": "ztsi-example",
+  "timestamp": "2026-05-23T00:00:00+00:00",
+  "final_status": "ALLOWED"
+}
+```
+
 ### POST /generate
 
 Request:
@@ -77,6 +99,9 @@ Response:
   "candidate_output": "ZT&SI Stability Gateway response: ...",
   "coherence_score": 1.0,
   "drift_score": 0.0,
+  "semantic_similarity": 1.0,
+  "contradiction_score": 0.0,
+  "recursive_instability_score": 0.0,
   "governance_status": "APPROVED",
   "firewall_status": "ALLOWED",
   "lineage_id": "ztsi-example",
@@ -86,20 +111,6 @@ Response:
 ```
 
 Unknown providers return HTTP `400` with a clear error message. The default provider is `mock`.
-
-Response:
-
-```json
-{
-  "coherence_score": 1.0,
-  "drift_score": 0.0,
-  "governance_status": "APPROVED",
-  "firewall_status": "ALLOWED",
-  "lineage_id": "ztsi-example",
-  "timestamp": "2026-05-23T00:00:00+00:00",
-  "final_status": "ALLOWED"
-}
-```
 
 ## Governance Rule
 

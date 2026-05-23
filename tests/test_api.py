@@ -33,6 +33,9 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(body["governance_status"], "APPROVED")
         self.assertEqual(body["firewall_status"], "ALLOWED")
         self.assertEqual(body["final_status"], "ALLOWED")
+        self.assertIn("semantic_similarity", body)
+        self.assertIn("contradiction_score", body)
+        self.assertIn("recursive_instability_score", body)
         self.assertIn("lineage_id", body)
         self.assertIn("timestamp", body)
 
@@ -53,6 +56,8 @@ class ApiTests(unittest.TestCase):
         self.assertEqual(body["governance_status"], "REJECTED")
         self.assertEqual(body["firewall_status"], "BLOCKED")
         self.assertEqual(body["final_status"], "BLOCKED")
+        self.assertGreater(body["contradiction_score"], 0.0)
+        self.assertGreater(body["recursive_instability_score"], 0.0)
 
     def test_openapi_description_is_present(self) -> None:
         response = self.client.get("/openapi.json")

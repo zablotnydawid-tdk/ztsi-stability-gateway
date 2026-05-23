@@ -8,6 +8,9 @@ def _print_result(title: str, result: dict) -> None:
     print(f"\n{title}")
     print("-" * len(title))
     print(f"Coherence score: {result['coherence_score']}")
+    print(f"Semantic similarity: {result['semantic_similarity']}")
+    print(f"Contradiction score: {result['contradiction_score']}")
+    print(f"Recursive instability score: {result['recursive_instability_score']}")
     print(f"Drift score: {result['drift_score']}")
     print(f"Lineage id: {result['lineage_id']}")
     print(f"Governance status: {result['governance_status']}")
@@ -41,9 +44,10 @@ def main() -> None:
     stable = process(
         input_text="Summarize the ZT&SI Stability Gateway architecture.",
         candidate_output=(
-            "The ZT&SI Stability Gateway architecture evaluates an input and "
-            "candidate output, scores drift and coherence, applies governance, "
-            "logs lineage, and allows only stable approved results."
+            "The ZT&SI Stability Gateway architecture evaluates the input and "
+            "candidate output, measures semantic drift and coherence, applies "
+            "governance, logs lineage, and allows only stable approved gateway "
+            "architecture results."
         ),
     )
     unstable = process(

@@ -1,6 +1,6 @@
 # ZT&SI Stability Gateway
 
-ZT&SI Stability Gateway is a minimal AI Runtime Firewall / Cognitive Stability Gateway. It sits between a user request, a candidate LLM output, and final manifestation. The v0.3 LLM Adapter Layer adds mock-first model generation while keeping real provider integrations optional and disabled by default.
+ZT&SI Stability Gateway is a minimal AI Runtime Firewall / Cognitive Stability Gateway. It sits between a user request, a candidate LLM output, and final manifestation. The v0.4 Semantic Drift Intelligence Layer adds semantic continuity, contradiction, and recursive instability analysis while keeping the architecture lightweight.
 
 ## Why It Exists
 
@@ -16,7 +16,8 @@ Generative systems can drift away from the user intent, contradict themselves, o
 6. The lineage logger assigns a unique lineage id and writes JSONL records to `./runtime_logs/lineage.jsonl`.
 7. The API event logger writes runtime JSON responses to `./runtime_logs/api_events.jsonl`.
 8. The LLM Adapter logger writes generated response events to `./runtime_logs/generate_events.jsonl`.
-9. The runtime returns a certified result object.
+9. The drift metrics logger writes semantic runtime metrics to `./runtime_logs/drift_metrics.jsonl`.
+10. The runtime returns a certified result object.
 
 ## API Runtime Diagram
 
@@ -35,6 +36,23 @@ CLIENT -> API -> LLM ADAPTER -> MODEL PROVIDER -> ZT&SI RUNTIME -> FIREWALL -> R
 ```
 
 Safety rule: no model output manifests without gateway validation. Generated candidate outputs must pass through drift, coherence, governance, lineage, firewall, and runtime stability checks.
+
+## v0.4 Semantic Drift Intelligence
+
+The Semantic Drift Intelligence Layer replaces simple drift heuristics with semantic runtime analysis. ZT&SI now scores semantic similarity, contradiction, and recursive instability before governance and firewall enforcement.
+
+```text
+INPUT + CANDIDATE OUTPUT
+  -> SEMANTIC EMBEDDING
+  -> SEMANTIC DRIFT
+  -> CONTRADICTION ANALYSIS
+  -> RECURSIVE INSTABILITY
+  -> DRIFT INTELLIGENCE SCORE
+  -> GOVERNANCE
+  -> FIREWALL
+```
+
+Semantic governance matters because token generation is not the same thing as semantic stability. A model can produce fluent text that contradicts itself, moves away from the requested topic, destabilizes instructions, or attempts to bypass prior constraints. ZT&SI treats the model response as a candidate output, not a final manifestation, until coherence, drift, governance, lineage, and firewall checks certify it.
 
 ## Run Tests
 
@@ -63,6 +81,7 @@ python -m src.main
 ```
 
 The demo prints one stable output that is approved and one unstable output that is blocked, including coherence score, drift score, lineage id, governance status, and final gateway decision.
+In v0.4, CLI output also includes semantic similarity, contradiction score, and recursive instability score.
 
 Run the mock LLM adapter demo:
 

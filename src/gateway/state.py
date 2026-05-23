@@ -7,6 +7,9 @@ class SemanticState:
     candidate_output: str
     coherence_score: float = 0.0
     drift_score: float = 0.0
+    semantic_similarity: float = 0.0
+    contradiction_score: float = 0.0
+    recursive_instability_score: float = 0.0
     governance_status: str = "PENDING"
     lineage_id: str = ""
     final_status: str = "PENDING"
