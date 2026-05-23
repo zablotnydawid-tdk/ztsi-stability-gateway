@@ -15,6 +15,9 @@ from src.llm.providers import UnknownProviderError
 from src.memory.lineage_graph import LineageGraph
 from src.memory.retrieval import MemoryRetrievalEngine
 from src.memory.rollback import RollbackEngine
+from src.telemetry.aggregation import TelemetryAggregator
+from src.telemetry.health import RuntimeHealthMonitor
+from src.telemetry.metrics import RuntimeTelemetryEngine
 
 router = APIRouter()
 
@@ -159,3 +162,54 @@ def memory_lineage(lineage_id: str) -> dict:
 def rollback(lineage_id: str) -> RollbackResponse:
     result = RollbackEngine().rollback(lineage_id)
     return RollbackResponse(**result)
+
+
+@router.get("/telemetry/summary", tags=["telemetry"])
+def telemetry_summary() -> dict:
+    return RuntimeTelemetryEngine().summary()
+
+
+@router.get("/telemetry/health", tags=["telemetry"])
+def telemetry_health() -> dict:
+    return RuntimeHealthMonitor().health()
+
+
+@router.get("/telemetry/drift", tags=["telemetry"])
+def telemetry_drift() -> dict:
+    summary = TelemetryAggregator().aggregate_runtime_summary()
+    return {
+        "average_drift": summary["average_drift"],
+        "drift_trend": summary["drift_trend"],
+        "recursive_instability_frequency": summary["recursive_instability_frequency"],
+        "contradiction_frequency": summary["contradiction_frequency"],
+    }
+
+
+@router.get("/telemetry/governance", tags=["telemetry"])
+def telemetry_governance() -> dict:
+    summary = TelemetryAggregator().aggregate_runtime_summary()
+    return {
+        "approved_outputs": summary["approved_outputs"],
+        "blocked_outputs": summary["blocked_outputs"],
+        "governance_counts": summary["governance_counts"],
+    }
+
+
+@router.get("/telemetry/stabilization", tags=["telemetry"])
+def telemetry_stabilization() -> dict:
+    summary = TelemetryAggregator().aggregate_runtime_summary()
+    return {
+        "stabilization_attempts": summary["stabilization_attempts"],
+        "stabilization_success_rate": summary["stabilization_success_rate"],
+        "stabilization_counts": summary["stabilization_counts"],
+    }
+
+
+@router.get("/telemetry/rollback", tags=["telemetry"])
+def telemetry_rollback() -> dict:
+    summary = TelemetryAggregator().aggregate_runtime_summary()
+    total = summary["total_runtime_executions"]
+    return {
+        "rollback_count": summary["rollback_count"],
+        "rollback_frequency": round(summary["rollback_count"] / total, 3) if total else 0.0,
+    }

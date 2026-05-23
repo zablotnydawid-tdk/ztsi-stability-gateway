@@ -58,6 +58,14 @@ CLIENT -> LLM -> DRIFT INTELLIGENCE -> PROJECTION -> GOVERNANCE -> FIREWALL -> M
 
 The v0.6 memory engine persists cognition states to `runtime_memory/`, updates a directed semantic lineage graph, creates stable snapshots, and supports rollback to the nearest stable semantic ancestor.
 
+## Runtime Observability & Telemetry Mesh
+
+```text
+CLIENT -> API -> LLM ADAPTER -> DRIFT INTELLIGENCE -> PROJECTION ENGINE -> GOVERNANCE -> FIREWALL -> MEMORY -> TELEMETRY -> DASHBOARD -> RESPONSE
+```
+
+The v0.7 telemetry mesh emits runtime events to `runtime_logs/telemetry.jsonl`, aggregates stability metrics, computes runtime health, and renders lightweight terminal dashboard summaries.
+
 ## Modules
 
 - `state.py` defines `SemanticState`.
@@ -89,3 +97,7 @@ The v0.6 memory engine persists cognition states to `runtime_memory/`, updates a
 - `src/memory/snapshots.py` creates stable checkpoints.
 - `src/memory/rollback.py` restores nearest stable semantic ancestors.
 - `src/memory/retrieval.py` provides recent, stable, unstable, and lineage-specific memory retrieval.
+- `src/telemetry/metrics.py` emits runtime telemetry events.
+- `src/telemetry/aggregation.py` aggregates runtime metrics and trends.
+- `src/telemetry/health.py` computes STABLE, DEGRADED, or CRITICAL health.
+- `src/dashboard/runtime_dashboard.py` renders runtime summaries and ASCII charts.

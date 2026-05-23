@@ -1,4 +1,5 @@
 from src.gateway.lineage import log_rollback_event
+from src.telemetry.metrics import RuntimeTelemetryEngine
 
 from .lineage_graph import LineageGraph
 from .semantic_memory import SemanticMemoryStore
@@ -37,6 +38,12 @@ class RollbackEngine:
                         "rollback_count": 1,
                     }
                 )
+                RuntimeTelemetryEngine().emit_rollback_event(
+                    {
+                        **response,
+                        "requested_lineage_id": lineage_id,
+                    }
+                )
                 return response
 
         response = {
@@ -50,6 +57,12 @@ class RollbackEngine:
                 **response,
                 "requested_lineage_id": lineage_id,
                 "rollback_count": 0,
+            }
+        )
+        RuntimeTelemetryEngine().emit_rollback_event(
+            {
+                **response,
+                "requested_lineage_id": lineage_id,
             }
         )
         return response

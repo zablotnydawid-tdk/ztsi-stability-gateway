@@ -1,6 +1,6 @@
 # ZT&SI Stability Gateway
 
-ZT&SI Stability Gateway is a minimal AI Runtime Firewall / Cognitive Stability Gateway. It sits between a user request, a candidate LLM output, and final manifestation. The v0.6 Recursive Memory & Lineage Graph Engine preserves recoverable semantic cognition trajectories across execution time.
+ZT&SI Stability Gateway is a minimal AI Runtime Firewall / Cognitive Stability Gateway. It sits between a user request, a candidate LLM output, and final manifestation. The v0.7 Runtime Observability & Telemetry Mesh makes the runtime observable as a live cognitive stability system.
 
 ## Why It Exists
 
@@ -21,7 +21,9 @@ Generative systems can drift away from the user intent, contradict themselves, o
 11. The memory engine persists cognition states to `./runtime_memory/`.
 12. The lineage graph connects recursive state ancestry.
 13. Stable snapshots are stored in `./runtime_memory/snapshots/`.
-14. The runtime returns a certified result object.
+14. The telemetry mesh emits runtime events to `./runtime_logs/telemetry.jsonl`.
+15. The dashboard layer renders runtime stability summaries and ASCII charts.
+16. The runtime returns a certified result object.
 
 ## API Runtime Diagram
 
@@ -110,6 +112,36 @@ Snapshots are stored under `runtime_memory/snapshots/` and are created only when
 
 ZT&SI now tracks how cognition evolves across runtime executions: raw input, projection, governance, firewall status, memory persistence, graph ancestry, and rollback availability.
 
+## v0.7 Runtime Observability
+
+The Runtime Observability layer turns ZT&SI into a monitored cognitive stability system. Every execution emits telemetry, updates runtime health, and contributes to dashboard summaries.
+
+```text
+CLIENT
+  -> API
+  -> LLM ADAPTER
+  -> DRIFT INTELLIGENCE
+  -> PROJECTION ENGINE
+  -> GOVERNANCE
+  -> FIREWALL
+  -> MEMORY
+  -> TELEMETRY
+  -> DASHBOARD
+  -> RESPONSE
+```
+
+## Telemetry Mesh
+
+The telemetry mesh tracks total runtime executions, approved outputs, blocked outputs, stabilization attempts, stabilization success rate, rollback count, average coherence, average drift, recursive instability frequency, contradiction frequency, snapshot count, and lineage graph size.
+
+## Runtime Health Monitoring
+
+`RuntimeHealthMonitor` reports `STABLE`, `DEGRADED`, or `CRITICAL` based on average coherence, average drift, rollback frequency, and whether blocked outputs dominate.
+
+## Cognitive Runtime Metrics
+
+ZT&SI now exposes runtime metrics through `/telemetry/*` endpoints and renders terminal dashboard charts for coherence trend, drift trend, governance outcomes, and stabilization outcomes.
+
 ## Run Tests
 
 ```bash
@@ -137,7 +169,7 @@ python -m src.main
 ```
 
 The demo prints one stable output that is approved and one unstable output that is either stabilized or blocked, including coherence score, drift score, lineage id, governance status, and final gateway decision.
-In v0.6, CLI output also includes semantic similarity, contradiction score, recursive instability score, original drift, stabilized drift, stabilization delta, projection status, stabilization reason, lineage ancestry, snapshot creation, rollback availability, and memory persistence status.
+In v0.7, CLI output also includes semantic similarity, contradiction score, recursive instability score, original drift, stabilized drift, stabilization delta, projection status, stabilization reason, lineage ancestry, snapshot creation, rollback availability, memory persistence status, runtime health, telemetry summary, coherence trend, drift trend, and governance counts.
 
 Run the mock LLM adapter demo:
 
@@ -209,6 +241,18 @@ Rollback:
 curl -sS -X POST http://127.0.0.1:8000/rollback/{lineage_id}
 ```
 
+Telemetry summary:
+
+```bash
+curl -sS http://127.0.0.1:8000/telemetry/summary
+```
+
+Runtime health:
+
+```bash
+curl -sS http://127.0.0.1:8000/telemetry/health
+```
+
 ## Next Engineering Steps
 
 - Replace heuristic drift checks with model-assisted semantic evaluation.
@@ -217,5 +261,6 @@ curl -sS -X POST http://127.0.0.1:8000/rollback/{lineage_id}
 - Add authentication and deployment profiles for the API runtime layer.
 - Add optional OpenAI and local model providers behind the LLM Adapter.
 - Add signed memory snapshots and graph integrity hashes.
+- Add export adapters for external observability systems.
 - Add structured result schemas for downstream runtime integrations.
 - Add persistent storage adapters beyond local JSONL.

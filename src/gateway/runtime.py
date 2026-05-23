@@ -14,6 +14,7 @@ from src.memory.lineage_graph import LineageGraph
 from src.memory.semantic_memory import SemanticMemoryStore
 from src.memory.snapshots import SnapshotManager
 from src.stabilization.projection import ProjectionEngine
+from src.telemetry.metrics import RuntimeTelemetryEngine
 
 
 def process(
@@ -117,4 +118,5 @@ def process(
             "snapshot_created": result["snapshot_created"],
         }
     )
+    RuntimeTelemetryEngine().emit_runtime_event(result)
     return result

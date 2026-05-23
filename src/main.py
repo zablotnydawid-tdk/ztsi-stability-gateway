@@ -2,6 +2,9 @@ import argparse
 
 from src.gateway.runtime import process
 from src.llm.adapter import LLMAdapter
+from src.dashboard.runtime_dashboard import RuntimeDashboard
+from src.telemetry.health import RuntimeHealthMonitor
+from src.telemetry.metrics import RuntimeTelemetryEngine
 
 
 def _print_result(title: str, result: dict) -> None:
@@ -24,6 +27,25 @@ def _print_result(title: str, result: dict) -> None:
     print(f"Memory persisted: {result['memory_persisted']}")
     print(f"Governance status: {result['governance_status']}")
     print(f"Final gateway decision: {result['final_status']}")
+
+
+def _print_telemetry() -> None:
+    telemetry = RuntimeTelemetryEngine()
+    health = RuntimeHealthMonitor(telemetry.aggregator).health()
+    summary = telemetry.summary()
+    dashboard = RuntimeDashboard(telemetry)
+    print("\nRuntime Telemetry")
+    print("-----------------")
+    print(f"Runtime health: {health['runtime_health']}")
+    print(f"Total runtime executions: {summary['total_runtime_executions']}")
+    print(f"Approved outputs: {summary['approved_outputs']}")
+    print(f"Blocked outputs: {summary['blocked_outputs']}")
+    print(f"Average coherence: {summary['average_coherence']}")
+    print(f"Average drift: {summary['average_drift']}")
+    print(f"Projection success rate: {summary['stabilization_success_rate']}")
+    print("\nRuntime Charts")
+    print("--------------")
+    print(dashboard.generate()["charts"])
 
 
 def main() -> None:
@@ -54,6 +76,7 @@ def main() -> None:
         _print_result("Generated Stable Response", stable_generated)
         _print_result("Generated Unstable Response", unstable_generated)
         _print_result("Recursive Follow-up Response", followup_generated)
+        _print_telemetry()
         return
 
     stable = process(
