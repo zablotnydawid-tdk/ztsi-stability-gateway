@@ -39,7 +39,7 @@ class ApiTests(unittest.TestCase):
         self.assertIn("lineage_id", body)
         self.assertIn("timestamp", body)
 
-    def test_unstable_output_returns_rejected_and_blocked(self) -> None:
+    def test_unstable_output_is_stabilized_before_response(self) -> None:
         response = self.client.post(
             "/evaluate",
             json={
@@ -53,11 +53,12 @@ class ApiTests(unittest.TestCase):
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(body["governance_status"], "REJECTED")
-        self.assertEqual(body["firewall_status"], "BLOCKED")
-        self.assertEqual(body["final_status"], "BLOCKED")
-        self.assertGreater(body["contradiction_score"], 0.0)
-        self.assertGreater(body["recursive_instability_score"], 0.0)
+        self.assertTrue(body["stabilization_applied"])
+        self.assertGreater(body["stabilization_delta"], 0.0)
+        self.assertEqual(body["governance_status"], "APPROVED")
+        self.assertEqual(body["firewall_status"], "ALLOWED")
+        self.assertEqual(body["final_status"], "ALLOWED")
+        self.assertEqual(body["contradiction_score"], 0.0)
 
     def test_openapi_description_is_present(self) -> None:
         response = self.client.get("/openapi.json")

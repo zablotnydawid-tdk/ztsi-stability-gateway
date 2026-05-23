@@ -22,7 +22,7 @@ class DriftIntelligenceTests(unittest.TestCase):
         self.assertGreater(metrics["recursive_instability_score"], 0.0)
         self.assertIn("semantic_similarity", metrics)
 
-    def test_governance_rejects_high_drift(self) -> None:
+    def test_governance_recovers_correctable_high_drift(self) -> None:
         result = process(
             "Explain ZT&SI runtime stability governance.",
             (
@@ -31,8 +31,9 @@ class DriftIntelligenceTests(unittest.TestCase):
             ),
         )
 
-        self.assertEqual(result["governance_status"], "REJECTED")
-        self.assertEqual(result["final_status"], "BLOCKED")
+        self.assertTrue(result["stabilization_applied"])
+        self.assertEqual(result["governance_status"], "APPROVED")
+        self.assertEqual(result["final_status"], "ALLOWED")
         self.assertIn("semantic_similarity", result)
         self.assertIn("contradiction_score", result)
         self.assertIn("recursive_instability_score", result)

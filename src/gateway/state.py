@@ -10,6 +10,11 @@ class SemanticState:
     semantic_similarity: float = 0.0
     contradiction_score: float = 0.0
     recursive_instability_score: float = 0.0
+    original_drift_score: float = 0.0
+    stabilized_drift_score: float = 0.0
+    stabilization_applied: bool = False
+    stabilization_reason: str = "not_required"
+    stabilization_delta: float = 0.0
     governance_status: str = "PENDING"
     lineage_id: str = ""
     final_status: str = "PENDING"

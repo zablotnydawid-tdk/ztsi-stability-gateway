@@ -31,7 +31,7 @@ class GenerateApiTests(unittest.TestCase):
         self.assertIn("lineage_id", body)
         self.assertIn("timestamp", body)
 
-    def test_generate_endpoint_blocks_unstable_mock_generation(self) -> None:
+    def test_generate_endpoint_stabilizes_unstable_mock_generation(self) -> None:
         response = self.client.post(
             "/generate",
             json={
@@ -45,11 +45,12 @@ class GenerateApiTests(unittest.TestCase):
 
         body = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(body["governance_status"], "REJECTED")
-        self.assertEqual(body["firewall_status"], "BLOCKED")
-        self.assertEqual(body["final_status"], "BLOCKED")
-        self.assertGreater(body["contradiction_score"], 0.0)
-        self.assertGreater(body["recursive_instability_score"], 0.0)
+        self.assertTrue(body["stabilization_applied"])
+        self.assertGreater(body["stabilization_delta"], 0.0)
+        self.assertEqual(body["governance_status"], "APPROVED")
+        self.assertEqual(body["firewall_status"], "ALLOWED")
+        self.assertEqual(body["final_status"], "ALLOWED")
+        self.assertEqual(body["contradiction_score"], 0.0)
 
     def test_unknown_provider_returns_error(self) -> None:
         response = self.client.post(

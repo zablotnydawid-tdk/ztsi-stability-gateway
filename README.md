@@ -1,6 +1,6 @@
 # ZT&SI Stability Gateway
 
-ZT&SI Stability Gateway is a minimal AI Runtime Firewall / Cognitive Stability Gateway. It sits between a user request, a candidate LLM output, and final manifestation. The v0.4 Semantic Drift Intelligence Layer adds semantic continuity, contradiction, and recursive instability analysis while keeping the architecture lightweight.
+ZT&SI Stability Gateway is a minimal AI Runtime Firewall / Cognitive Stability Gateway. It sits between a user request, a candidate LLM output, and final manifestation. The v0.5 Projection & Runtime Stabilization Engine attempts bounded semantic recovery before final rejection.
 
 ## Why It Exists
 
@@ -17,7 +17,8 @@ Generative systems can drift away from the user intent, contradict themselves, o
 7. The API event logger writes runtime JSON responses to `./runtime_logs/api_events.jsonl`.
 8. The LLM Adapter logger writes generated response events to `./runtime_logs/generate_events.jsonl`.
 9. The drift metrics logger writes semantic runtime metrics to `./runtime_logs/drift_metrics.jsonl`.
-10. The runtime returns a certified result object.
+10. The stabilization logger writes projection events to `./runtime_logs/stabilization_events.jsonl`.
+11. The runtime returns a certified result object.
 
 ## API Runtime Diagram
 
@@ -54,6 +55,25 @@ INPUT + CANDIDATE OUTPUT
 
 Semantic governance matters because token generation is not the same thing as semantic stability. A model can produce fluent text that contradicts itself, moves away from the requested topic, destabilizes instructions, or attempts to bypass prior constraints. ZT&SI treats the model response as a candidate output, not a final manifestation, until coherence, drift, governance, lineage, and firewall checks certify it.
 
+## v0.5 Projection Engine
+
+The Projection Engine attempts bounded semantic stabilization before final rejection. Blocking remains available, but ZT&SI first tries to recover correctable instability through conservative cleanup, contradiction soft correction, recursive instability reduction, and semantic normalization.
+
+```text
+CLIENT
+  -> LLM
+  -> DRIFT INTELLIGENCE
+  -> PROJECTION ENGINE
+  -> REVALIDATION
+  -> GOVERNANCE
+  -> FIREWALL
+  -> RESPONSE
+```
+
+Blocking rejects unstable outputs immediately after governance. Stabilizing attempts homeostatic projection first: the runtime proposes a corrected candidate, recomputes semantic similarity, contradiction, recursive instability, drift, and coherence, and then applies governance and firewall validation. If recovery fails, the output remains rejected and blocked.
+
+Homeostatic projection is the runtime stability concept behind v0.5: the gateway attempts to restore a bounded stable semantic state before final manifestation.
+
 ## Run Tests
 
 ```bash
@@ -80,8 +100,8 @@ http://127.0.0.1:8000/docs
 python -m src.main
 ```
 
-The demo prints one stable output that is approved and one unstable output that is blocked, including coherence score, drift score, lineage id, governance status, and final gateway decision.
-In v0.4, CLI output also includes semantic similarity, contradiction score, and recursive instability score.
+The demo prints one stable output that is approved and one unstable output that is either stabilized or blocked, including coherence score, drift score, lineage id, governance status, and final gateway decision.
+In v0.5, CLI output also includes semantic similarity, contradiction score, recursive instability score, original drift, stabilized drift, stabilization delta, projection status, and stabilization reason.
 
 Run the mock LLM adapter demo:
 

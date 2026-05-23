@@ -1,19 +1,47 @@
 from .coherence import calculate_coherence
 from .firewall import apply_firewall
 from .governance import evaluate_governance
-from .lineage import create_lineage_id, log_drift_metrics, log_state
+from .lineage import (
+    create_lineage_id,
+    log_drift_metrics,
+    log_stabilization_event,
+    log_state,
+)
 from .state import SemanticState
 from src.intelligence.scoring import DriftIntelligenceScorer
+from src.stabilization.projection import ProjectionEngine
 
 
 def process(input_text: str, candidate_output: str) -> dict:
+    scorer = DriftIntelligenceScorer()
     state = SemanticState(
         input_text=input_text,
         candidate_output=candidate_output,
         lineage_id=create_lineage_id(),
     )
-    drift_metrics = DriftIntelligenceScorer().score(input_text, candidate_output)
+    drift_metrics = scorer.score(input_text, candidate_output)
+    original_drift = drift_metrics["drift_score"]
+    original_coherence = calculate_coherence(original_drift)
+    initial_governance = evaluate_governance(original_coherence, original_drift)
+
+    if initial_governance == "REJECTED":
+        projection = ProjectionEngine(scorer=scorer).stabilize(
+            input_text,
+            candidate_output,
+            drift_metrics,
+        )
+        state.stabilization_applied = projection["stabilization_applied"]
+        state.stabilization_reason = projection["stabilization_reason"]
+        state.stabilization_delta = projection["stabilization_delta"]
+        if state.stabilization_applied:
+            state.candidate_output = projection["stabilized_output"]
+            drift_metrics = projection["drift_profile"]
+    else:
+        state.stabilization_reason = "not_required"
+
     state.drift_score = drift_metrics["drift_score"]
+    state.original_drift_score = original_drift
+    state.stabilized_drift_score = state.drift_score
     state.semantic_similarity = drift_metrics["semantic_similarity"]
     state.contradiction_score = drift_metrics["contradiction_score"]
     state.recursive_instability_score = drift_metrics["recursive_instability_score"]
@@ -23,6 +51,24 @@ def process(input_text: str, candidate_output: str) -> dict:
         state.drift_score,
     )
     state.final_status = apply_firewall(state.governance_status)
+    if initial_governance == "REJECTED":
+        coherence_improvement = round(state.coherence_score - original_coherence, 3)
+        log_stabilization_event(
+            {
+                "lineage_id": state.lineage_id,
+                "original_drift": original_drift,
+                "stabilized_drift": state.drift_score,
+                "stabilization_delta": state.stabilization_delta,
+                "correction_strategy": state.stabilization_reason,
+                "governance_status": state.governance_status,
+                "projection_attempts": 1,
+                "stabilization_success_rate": 1.0 if state.stabilization_applied else 0.0,
+                "projection_recovery_rate": (
+                    1.0 if state.stabilization_applied and state.governance_status == "APPROVED" else 0.0
+                ),
+                "post_projection_coherence_improvement": coherence_improvement,
+            }
+        )
     log_drift_metrics(
         {
             "lineage_id": state.lineage_id,

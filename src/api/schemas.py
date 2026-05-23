@@ -12,6 +12,9 @@ class EvaluateResponse(BaseModel):
     semantic_similarity: float
     contradiction_score: float
     recursive_instability_score: float
+    stabilization_applied: bool
+    stabilization_reason: str
+    stabilization_delta: float
     governance_status: str
     firewall_status: str
     lineage_id: str
@@ -36,6 +39,9 @@ class GenerateResponse(BaseModel):
     semantic_similarity: float
     contradiction_score: float
     recursive_instability_score: float
+    stabilization_applied: bool
+    stabilization_reason: str
+    stabilization_delta: float
     governance_status: str
     firewall_status: str
     lineage_id: str

@@ -42,6 +42,14 @@ INPUT + CANDIDATE OUTPUT -> EMBEDDINGS -> SEMANTIC DRIFT -> CONTRADICTION -> REC
 
 The v0.4 intelligence layer computes semantic similarity, contradiction score, recursive instability score, and final drift score. These metrics are logged to `runtime_logs/drift_metrics.jsonl` and returned by `/evaluate` and `/generate`.
 
+## Projection & Runtime Stabilization
+
+```text
+CLIENT -> LLM -> DRIFT INTELLIGENCE -> PROJECTION ENGINE -> REVALIDATION -> GOVERNANCE -> FIREWALL -> RESPONSE
+```
+
+The v0.5 projection engine attempts bounded semantic recovery before final rejection. Correctable contradictions and recursive instability are normalized, re-scored, and sent through governance. Stabilization events are logged to `runtime_logs/stabilization_events.jsonl`.
+
 ## Modules
 
 - `state.py` defines `SemanticState`.
@@ -63,3 +71,8 @@ The v0.4 intelligence layer computes semantic similarity, contradiction score, r
 - `src/intelligence/contradiction.py` detects logical reversal and conflicting claims.
 - `src/intelligence/recursive_instability.py` detects recursive destabilization language.
 - `src/intelligence/scoring.py` combines intelligence signals into the unified drift score.
+- `src/stabilization/projection.py` coordinates bounded semantic recovery.
+- `src/stabilization/correction.py` performs contradiction soft correction.
+- `src/stabilization/recovery.py` removes recursive instability and runaway recursion patterns.
+- `src/stabilization/normalization.py` normalizes projected text.
+- `src/stabilization/policies.py` defines projection modes.
