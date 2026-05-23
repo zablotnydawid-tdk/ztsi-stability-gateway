@@ -26,6 +26,14 @@ CLIENT -> API -> RUNTIME -> GOVERNANCE -> FIREWALL -> RESPONSE
 
 The FastAPI layer receives runtime stability evaluation requests at `/evaluate`, forwards them into the existing ZT&SI runtime, returns a certified response object, and logs API response events to `runtime_logs/api_events.jsonl`.
 
+## LLM Adapter Layer
+
+```text
+CLIENT -> API -> LLM ADAPTER -> MODEL PROVIDER -> ZT&SI RUNTIME -> FIREWALL -> RESPONSE
+```
+
+The v0.3 LLM Adapter receives application input at `/generate`, calls a provider such as `mock`, sends the generated candidate output through the existing ZT&SI runtime, logs generated events to `runtime_logs/generate_events.jsonl`, and returns the certified firewall response.
+
 ## Modules
 
 - `state.py` defines `SemanticState`.
@@ -38,3 +46,7 @@ The FastAPI layer receives runtime stability evaluation requests at `/evaluate`,
 - `src/api/schemas.py` defines Pydantic request and response models.
 - `src/api/routes.py` defines `/health` and `/evaluate`.
 - `src/api/server.py` creates the FastAPI application, OpenAPI description, and timing middleware.
+- `src/llm/base.py` defines the provider interface.
+- `src/llm/mock_provider.py` implements mock-first stable and unstable generation.
+- `src/llm/providers.py` registers provider names.
+- `src/llm/adapter.py` routes generated candidate outputs into ZT&SI runtime validation.

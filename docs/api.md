@@ -58,6 +58,35 @@ Request:
 }
 ```
 
+### POST /generate
+
+Request:
+
+```json
+{
+  "input_text": "Explain ZT&SI runtime stability governance.",
+  "provider": "mock"
+}
+```
+
+Response:
+
+```json
+{
+  "input_text": "Explain ZT&SI runtime stability governance.",
+  "candidate_output": "ZT&SI Stability Gateway response: ...",
+  "coherence_score": 1.0,
+  "drift_score": 0.0,
+  "governance_status": "APPROVED",
+  "firewall_status": "ALLOWED",
+  "lineage_id": "ztsi-example",
+  "timestamp": "2026-05-23T00:00:00+00:00",
+  "final_status": "ALLOWED"
+}
+```
+
+Unknown providers return HTTP `400` with a clear error message. The default provider is `mock`.
+
 Response:
 
 ```json
