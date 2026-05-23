@@ -1,6 +1,53 @@
 # ZT&SI Stability Gateway
 
-ZT&SI Stability Gateway is a minimal AI Runtime Firewall / Cognitive Stability Gateway. It sits between a user request, a candidate LLM output, and final manifestation. The v0.9 Multi-Agent Governance Mesh treats agents as sandboxed cognition processes under shared runtime governance.
+ZT&SI Stability Gateway is a public proof-of-work for Cognitive Stability Infrastructure: an AI Runtime Firewall that evaluates, stabilizes, governs, and logs model outputs before manifestation.
+
+This public repository demonstrates the gateway architecture and runtime governance behavior.
+Advanced sovereign-core research, adaptive projection mechanics, and proprietary governance methods are intentionally kept outside this public repository.
+
+## Public Architecture
+
+```text
+CLIENT
+-> API
+-> LLM ADAPTER
+-> SEMANTIC DRIFT INTELLIGENCE
+-> PROJECTION ENGINE
+-> POLICY ENGINE
+-> GOVERNANCE MESH
+-> FIREWALL
+-> MEMORY
+-> TELEMETRY
+-> RESPONSE
+```
+
+## Version History
+
+- v0.1 CLI MVP
+- v0.2 API Runtime Layer
+- v0.3 LLM Adapter Layer
+- v0.4 Semantic Drift Intelligence
+- v0.5 Projection & Runtime Stabilization
+- v0.6 Recursive Memory & Lineage Graph
+- v0.7 Runtime Observability & Telemetry Mesh
+- v0.8 Policy Engine & Governance Ruleset
+- v0.9 Multi-Agent Governance Mesh
+
+## Quickstart
+
+```bash
+python -m unittest discover -s tests
+python -m src.main --generate
+uvicorn src.api.server:app --reload
+```
+
+When using the included virtual environment on Linux or WSL:
+
+```bash
+.venv/bin/python -m unittest discover -s tests
+.venv/bin/python -m src.main --generate
+.venv/bin/uvicorn src.api.server:app --reload
+```
 
 ## Why It Exists
 
