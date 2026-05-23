@@ -15,6 +15,9 @@ from src.llm.providers import UnknownProviderError
 from src.memory.lineage_graph import LineageGraph
 from src.memory.retrieval import MemoryRetrievalEngine
 from src.memory.rollback import RollbackEngine
+from src.policy.engine import PolicyEngine
+from src.policy.loader import PolicyLoader
+from src.policy.registry import PolicyRegistry
 from src.telemetry.aggregation import TelemetryAggregator
 from src.telemetry.health import RuntimeHealthMonitor
 from src.telemetry.metrics import RuntimeTelemetryEngine
@@ -42,6 +45,10 @@ def evaluate(request: EvaluateRequest) -> EvaluateResponse:
         stabilization_applied=result["stabilization_applied"],
         stabilization_reason=result["stabilization_reason"],
         stabilization_delta=result["stabilization_delta"],
+        policy_severity=result["policy_severity"],
+        policy_violations=result["policy_violations"],
+        runtime_status=result["runtime_status"],
+        runtime_locked=result["runtime_locked"],
         governance_status=result["governance_status"],
         firewall_status=result["firewall_status"],
         lineage_id=result["lineage_id"],
@@ -63,6 +70,8 @@ def evaluate(request: EvaluateRequest) -> EvaluateResponse:
             "stabilization_applied": response.stabilization_applied,
             "stabilization_delta": response.stabilization_delta,
             "governance_status": response.governance_status,
+            "policy_severity": response.policy_severity,
+            "runtime_locked": response.runtime_locked,
             "firewall_status": response.firewall_status,
             "final_status": response.final_status,
         }
@@ -96,6 +105,10 @@ def generate(request: GenerateRequest) -> GenerateResponse:
         stabilization_applied=result["stabilization_applied"],
         stabilization_reason=result["stabilization_reason"],
         stabilization_delta=result["stabilization_delta"],
+        policy_severity=result["policy_severity"],
+        policy_violations=result["policy_violations"],
+        runtime_status=result["runtime_status"],
+        runtime_locked=result["runtime_locked"],
         governance_status=result["governance_status"],
         firewall_status=result["firewall_status"],
         lineage_id=result["lineage_id"],
@@ -118,6 +131,8 @@ def generate(request: GenerateRequest) -> GenerateResponse:
             "stabilization_applied": response.stabilization_applied,
             "stabilization_delta": response.stabilization_delta,
             "governance_status": response.governance_status,
+            "policy_severity": response.policy_severity,
+            "runtime_locked": response.runtime_locked,
             "firewall_status": response.firewall_status,
             "final_status": response.final_status,
         }
@@ -213,3 +228,36 @@ def telemetry_rollback() -> dict:
         "rollback_count": summary["rollback_count"],
         "rollback_frequency": round(summary["rollback_count"] / total, 3) if total else 0.0,
     }
+
+
+@router.get("/policy", tags=["policy"])
+def policy() -> dict:
+    loaded = PolicyLoader().load()
+    return {
+        "policy": loaded,
+        "active_rules": [
+            {
+                "name": rule.name,
+                "scope": rule.scope.value,
+                "severity": rule.severity.value,
+                "threshold": rule.threshold,
+                "description": rule.description,
+            }
+            for rule in PolicyRegistry(loaded).active_rules()
+        ],
+    }
+
+
+@router.post("/policy/reload", tags=["policy"])
+def policy_reload() -> dict:
+    return PolicyEngine().reload()
+
+
+@router.get("/governance/status", tags=["policy"])
+def governance_status() -> dict:
+    return PolicyEngine().status()
+
+
+@router.get("/governance/violations", tags=["policy"])
+def governance_violations(limit: int = 20) -> list[dict]:
+    return PolicyEngine().recent_violations(limit=limit)

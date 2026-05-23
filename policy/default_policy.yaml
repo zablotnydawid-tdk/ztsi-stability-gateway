@@ -1,0 +1,12 @@
+name: ZT&SI Default Runtime Governance Policy
+version: 0.8
+minimum_coherence: 0.82
+maximum_drift: 0.18
+maximum_contradiction: 0.50
+maximum_recursive_instability: 0.50
+allow_projection_recovery: true
+critical_block_threshold: 0.75
+rollback_frequency_warning: 0.15
+rollback_storm_threshold: 0.35
+repeated_failure_threshold: 5
+lockdown_recursive_instability: 0.95

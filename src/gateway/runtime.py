@@ -13,7 +13,9 @@ from src.intelligence.scoring import DriftIntelligenceScorer
 from src.memory.lineage_graph import LineageGraph
 from src.memory.semantic_memory import SemanticMemoryStore
 from src.memory.snapshots import SnapshotManager
+from src.policy.engine import PolicyEngine
 from src.stabilization.projection import ProjectionEngine
+from src.telemetry.aggregation import TelemetryAggregator
 from src.telemetry.metrics import RuntimeTelemetryEngine
 
 
@@ -55,11 +57,17 @@ def process(
     state.contradiction_score = drift_metrics["contradiction_score"]
     state.recursive_instability_score = drift_metrics["recursive_instability_score"]
     state.coherence_score = calculate_coherence(state.drift_score)
-    state.governance_status = evaluate_governance(
-        state.coherence_score,
-        state.drift_score,
+    provisional_state = state.to_dict()
+    policy_result = PolicyEngine().evaluate(
+        provisional_state,
+        telemetry_summary=TelemetryAggregator().aggregate_runtime_summary(),
     )
-    state.final_status = apply_firewall(state.governance_status)
+    state.policy_severity = policy_result["severity"]
+    state.policy_violations = len(policy_result["violations"])
+    state.runtime_status = policy_result["runtime_status"]
+    state.runtime_locked = policy_result["runtime_locked"]
+    state.governance_status = policy_result["governance_decision"]
+    state.final_status = "BLOCKED" if state.runtime_locked else apply_firewall(state.governance_status)
     if initial_governance == "REJECTED":
         coherence_improvement = round(state.coherence_score - original_coherence, 3)
         log_stabilization_event(
@@ -86,6 +94,8 @@ def process(
             "recursive_instability_score": state.recursive_instability_score,
             "drift_score": state.drift_score,
             "governance_status": state.governance_status,
+            "policy_severity": state.policy_severity,
+            "runtime_locked": state.runtime_locked,
         }
     )
     lineage_record = log_state(state)

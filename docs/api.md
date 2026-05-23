@@ -25,6 +25,10 @@ result = process(
     "stabilization_applied": bool,
     "stabilization_reason": str,
     "stabilization_delta": float,
+    "policy_severity": str,
+    "policy_violations": int,
+    "runtime_status": str,
+    "runtime_locked": bool,
     "governance_status": "APPROVED" | "REJECTED",
     "firewall_status": "ALLOWED" | "BLOCKED",
     "lineage_id": str,
@@ -81,6 +85,10 @@ Response:
   "stabilization_applied": false,
   "stabilization_reason": "not_required",
   "stabilization_delta": 0.0,
+  "policy_severity": "INFO",
+  "policy_violations": 0,
+  "runtime_status": "NORMAL",
+  "runtime_locked": false,
   "governance_status": "APPROVED",
   "firewall_status": "ALLOWED",
   "lineage_id": "ztsi-example",
@@ -117,6 +125,10 @@ Response:
   "stabilization_applied": false,
   "stabilization_reason": "not_required",
   "stabilization_delta": 0.0,
+  "policy_severity": "INFO",
+  "policy_violations": 0,
+  "runtime_status": "NORMAL",
+  "runtime_locked": false,
   "governance_status": "APPROVED",
   "firewall_status": "ALLOWED",
   "lineage_id": "ztsi-example",
@@ -158,6 +170,30 @@ Response:
   "rollback_reason": "nearest_stable_snapshot_restored"
 }
 ```
+
+### GET /policy
+
+Returns the active policy and rule registry.
+
+### POST /policy/reload
+
+Reloads policy configuration from `policy/default_policy.yaml`.
+
+### GET /governance/status
+
+```json
+{
+  "runtime_status": "NORMAL",
+  "policy_loaded": true,
+  "active_rules": 8,
+  "recent_violations": 0,
+  "lockdown_active": false
+}
+```
+
+### GET /governance/violations
+
+Returns recent policy violation log entries.
 
 ## Governance Rule
 

@@ -66,6 +66,14 @@ CLIENT -> API -> LLM ADAPTER -> DRIFT INTELLIGENCE -> PROJECTION ENGINE -> GOVER
 
 The v0.7 telemetry mesh emits runtime events to `runtime_logs/telemetry.jsonl`, aggregates stability metrics, computes runtime health, and renders lightweight terminal dashboard summaries.
 
+## Policy Engine & Governance Ruleset
+
+```text
+CLIENT -> API -> LLM ADAPTER -> DRIFT INTELLIGENCE -> PROJECTION ENGINE -> POLICY ENGINE -> GOVERNANCE -> FIREWALL -> MEMORY -> TELEMETRY -> RESPONSE
+```
+
+The v0.8 policy engine loads configurable governance rules from `policy/default_policy.yaml`, evaluates runtime states, emits severity, logs policy violations, and supports lockdown enforcement before final manifestation.
+
 ## Modules
 
 - `state.py` defines `SemanticState`.
@@ -101,3 +109,6 @@ The v0.7 telemetry mesh emits runtime events to `runtime_logs/telemetry.jsonl`, 
 - `src/telemetry/aggregation.py` aggregates runtime metrics and trends.
 - `src/telemetry/health.py` computes STABLE, DEGRADED, or CRITICAL health.
 - `src/dashboard/runtime_dashboard.py` renders runtime summaries and ASCII charts.
+- `src/policy/loader.py` loads and validates runtime governance policy.
+- `src/policy/evaluator.py` evaluates coherence, drift, contradiction, recursion, stabilization, and rollback rules.
+- `src/policy/engine.py` coordinates policy decisions, violation logging, and lockdown state.

@@ -35,6 +35,8 @@ class TelemetryAggregator:
         snapshot_count = sum(1 for event in events if event.get("snapshot_created"))
         lineage_graph_size = len({event.get("lineage_id") for event in events if event.get("lineage_id")})
         governance_counts = Counter(event.get("governance_status", "UNKNOWN") for event in events)
+        severity_counts = Counter(event.get("policy_severity", "INFO") for event in events)
+        lockdown_events = sum(1 for event in events if event.get("runtime_locked"))
         stabilization_counts = Counter(
             "RECOVERED" if event.get("projection_recovered") else "ATTEMPTED"
             for event in events
@@ -57,6 +59,8 @@ class TelemetryAggregator:
             "snapshot_count": snapshot_count,
             "lineage_graph_size": lineage_graph_size,
             "governance_counts": dict(governance_counts),
+            "severity_distribution": dict(severity_counts),
+            "lockdown_events": lockdown_events,
             "stabilization_counts": dict(stabilization_counts),
             "coherence_trend": [event.get("coherence_score", 0.0) for event in events],
             "drift_trend": [event.get("drift_score", 0.0) for event in events],

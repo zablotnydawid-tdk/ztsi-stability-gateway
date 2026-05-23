@@ -5,6 +5,8 @@ from src.llm.adapter import LLMAdapter
 from src.dashboard.runtime_dashboard import RuntimeDashboard
 from src.telemetry.health import RuntimeHealthMonitor
 from src.telemetry.metrics import RuntimeTelemetryEngine
+from src.policy.loader import PolicyLoader
+from src.policy.registry import PolicyRegistry
 
 
 def _print_result(title: str, result: dict) -> None:
@@ -19,6 +21,10 @@ def _print_result(title: str, result: dict) -> None:
     print(f"Stabilization delta: {result['stabilization_delta']}")
     print(f"Projection applied: {result['stabilization_applied']}")
     print(f"Stabilization reason: {result['stabilization_reason']}")
+    print(f"Policy severity: {result['policy_severity']}")
+    print(f"Rule violations: {result['policy_violations']}")
+    print(f"Runtime status: {result['runtime_status']}")
+    print(f"Runtime locked: {result['runtime_locked']}")
     print(f"Drift score: {result['drift_score']}")
     print(f"Lineage id: {result['lineage_id']}")
     print(f"Lineage ancestry: {result['lineage_ancestry']}")
@@ -34,8 +40,11 @@ def _print_telemetry() -> None:
     health = RuntimeHealthMonitor(telemetry.aggregator).health()
     summary = telemetry.summary()
     dashboard = RuntimeDashboard(telemetry)
+    policy = PolicyLoader().load()
     print("\nRuntime Telemetry")
     print("-----------------")
+    print(f"Active governance policy: {policy['name']}")
+    print(f"Active policy rules: {len(PolicyRegistry(policy).active_rules())}")
     print(f"Runtime health: {health['runtime_health']}")
     print(f"Total runtime executions: {summary['total_runtime_executions']}")
     print(f"Approved outputs: {summary['approved_outputs']}")
@@ -43,6 +52,8 @@ def _print_telemetry() -> None:
     print(f"Average coherence: {summary['average_coherence']}")
     print(f"Average drift: {summary['average_drift']}")
     print(f"Projection success rate: {summary['stabilization_success_rate']}")
+    print(f"Severity distribution: {summary['severity_distribution']}")
+    print(f"Lockdown events: {summary['lockdown_events']}")
     print("\nRuntime Charts")
     print("--------------")
     print(dashboard.generate()["charts"])

@@ -15,6 +15,10 @@ class SemanticState:
     stabilization_applied: bool = False
     stabilization_reason: str = "not_required"
     stabilization_delta: float = 0.0
+    policy_severity: str = "INFO"
+    policy_violations: int = 0
+    runtime_status: str = "NORMAL"
+    runtime_locked: bool = False
     governance_status: str = "PENDING"
     lineage_id: str = ""
     final_status: str = "PENDING"

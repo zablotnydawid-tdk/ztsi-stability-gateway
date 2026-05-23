@@ -22,4 +22,7 @@ def build_runtime_event(state: dict) -> dict:
         "snapshot_created": state.get("snapshot_created", False),
         "lineage_path_length": len(state.get("lineage_path", [])),
         "rollback_available": state.get("rollback_available", False),
+        "policy_severity": state.get("policy_severity", "INFO"),
+        "policy_violations": state.get("policy_violations", 0),
+        "runtime_locked": state.get("runtime_locked", False),
     }

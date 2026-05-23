@@ -1,0 +1,11 @@
+from enum import Enum
+
+
+class PolicyScope(str, Enum):
+    RUNTIME = "RUNTIME"
+    DRIFT = "DRIFT"
+    COHERENCE = "COHERENCE"
+    CONTRADICTION = "CONTRADICTION"
+    RECURSION = "RECURSION"
+    STABILIZATION = "STABILIZATION"
+    ROLLBACK = "ROLLBACK"

@@ -1,6 +1,6 @@
 # ZT&SI Stability Gateway
 
-ZT&SI Stability Gateway is a minimal AI Runtime Firewall / Cognitive Stability Gateway. It sits between a user request, a candidate LLM output, and final manifestation. The v0.7 Runtime Observability & Telemetry Mesh makes the runtime observable as a live cognitive stability system.
+ZT&SI Stability Gateway is a minimal AI Runtime Firewall / Cognitive Stability Gateway. It sits between a user request, a candidate LLM output, and final manifestation. The v0.8 Policy Engine & Governance Ruleset makes runtime governance dynamically configurable with severity escalation and lockdown enforcement.
 
 ## Why It Exists
 
@@ -22,8 +22,10 @@ Generative systems can drift away from the user intent, contradict themselves, o
 12. The lineage graph connects recursive state ancestry.
 13. Stable snapshots are stored in `./runtime_memory/snapshots/`.
 14. The telemetry mesh emits runtime events to `./runtime_logs/telemetry.jsonl`.
-15. The dashboard layer renders runtime stability summaries and ASCII charts.
-16. The runtime returns a certified result object.
+15. The policy engine evaluates configurable governance rules from `./policy/default_policy.yaml`.
+16. Policy violations are logged to `./runtime_logs/policy_violations.jsonl`.
+17. The dashboard layer renders runtime stability summaries and ASCII charts.
+18. The runtime returns a certified result object.
 
 ## API Runtime Diagram
 
@@ -142,6 +144,46 @@ The telemetry mesh tracks total runtime executions, approved outputs, blocked ou
 
 ZT&SI now exposes runtime metrics through `/telemetry/*` endpoints and renders terminal dashboard charts for coherence trend, drift trend, governance outcomes, and stabilization outcomes.
 
+## v0.8 Policy Engine
+
+The Policy Engine replaces fixed governance thresholds with configurable runtime governance rules. Policy is loaded from `policy/default_policy.yaml`, validated, and safely falls back to defaults if invalid.
+
+```text
+CLIENT
+  -> API
+  -> LLM ADAPTER
+  -> DRIFT INTELLIGENCE
+  -> PROJECTION ENGINE
+  -> POLICY ENGINE
+  -> GOVERNANCE
+  -> FIREWALL
+  -> MEMORY
+  -> TELEMETRY
+  -> RESPONSE
+```
+
+## Runtime Governance Rules
+
+Default rules cover minimum coherence, maximum drift, contradiction threshold, recursive instability threshold, projection recovery allowance, critical block threshold, rollback warning frequency, and rollback storm threshold.
+
+## Severity Escalation Model
+
+ZT&SI uses four severity levels:
+
+```text
+INFO -> WARNING -> CRITICAL -> LOCKDOWN
+```
+
+`WARNING` allows but logs, `CRITICAL` blocks output, and `LOCKDOWN` freezes manifestation until runtime governance recovers.
+
+## Lockdown Protocol
+
+Lockdown activates on sovereign enforcement triggers such as excessive recursive instability, critical drift escalation, repeated governance failure pressure, or rollback storm detection. When active, manifestation is disabled and the runtime returns a locked response.
+
+## Dynamic Governance Doctrine
+
+Policy evaluation happens after projection revalidation and before firewall manifestation. That means ZT&SI can recover correctable states, then still enforce policy rules before any output is allowed.
+
 ## Run Tests
 
 ```bash
@@ -169,7 +211,7 @@ python -m src.main
 ```
 
 The demo prints one stable output that is approved and one unstable output that is either stabilized or blocked, including coherence score, drift score, lineage id, governance status, and final gateway decision.
-In v0.7, CLI output also includes semantic similarity, contradiction score, recursive instability score, original drift, stabilized drift, stabilization delta, projection status, stabilization reason, lineage ancestry, snapshot creation, rollback availability, memory persistence status, runtime health, telemetry summary, coherence trend, drift trend, and governance counts.
+In v0.8, CLI output also includes semantic similarity, contradiction score, recursive instability score, original drift, stabilized drift, stabilization delta, projection status, stabilization reason, policy severity, rule violations, lockdown state, lineage ancestry, snapshot creation, rollback availability, memory persistence status, runtime health, telemetry summary, coherence trend, drift trend, and governance counts.
 
 Run the mock LLM adapter demo:
 
@@ -251,6 +293,18 @@ Runtime health:
 
 ```bash
 curl -sS http://127.0.0.1:8000/telemetry/health
+```
+
+Policy:
+
+```bash
+curl -sS http://127.0.0.1:8000/policy
+```
+
+Governance status:
+
+```bash
+curl -sS http://127.0.0.1:8000/governance/status
 ```
 
 ## Next Engineering Steps

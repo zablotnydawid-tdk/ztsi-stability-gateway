@@ -15,6 +15,10 @@ class EvaluateResponse(BaseModel):
     stabilization_applied: bool
     stabilization_reason: str
     stabilization_delta: float
+    policy_severity: str
+    policy_violations: int
+    runtime_status: str
+    runtime_locked: bool
     governance_status: str
     firewall_status: str
     lineage_id: str
@@ -45,6 +49,10 @@ class GenerateResponse(BaseModel):
     stabilization_applied: bool
     stabilization_reason: str
     stabilization_delta: float
+    policy_severity: str
+    policy_violations: int
+    runtime_status: str
+    runtime_locked: bool
     governance_status: str
     firewall_status: str
     lineage_id: str
