@@ -5,3 +5,10 @@ __pycache__/
 *.egg-info/
 runtime_logs/
 runtime_memory/
+.env
+.env.*
+*.key
+*.pem
+*.crt
+secrets.*
+local.*

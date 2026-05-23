@@ -1,24 +1,47 @@
 # ZT&SI Stability Gateway
 
-ZT&SI Stability Gateway is a public proof-of-work for Cognitive Stability Infrastructure: an AI Runtime Firewall that evaluates, stabilizes, governs, and logs model outputs before manifestation.
+ZT&SI Stability Gateway is a public proof-of-work for Cognitive Stability Infrastructure:
+an AI Runtime Firewall that evaluates, stabilizes, governs, and logs model outputs before manifestation.
 
-This public repository demonstrates the gateway architecture and runtime governance behavior.
-Advanced sovereign-core research, adaptive projection mechanics, and proprietary governance methods are intentionally kept outside this public repository.
+Instead of optimizing token prediction alone, the gateway focuses on preserving semantic coherence under recursive informational perturbation.
 
-## Public Architecture
+The v0.9 Multi-Agent Governance Mesh treats agents as sandboxed cognition processes operating under shared runtime governance, drift budgets, lineage boundaries, and policy enforcement.
+
+This repository is the public demonstrator layer.
+Advanced sovereign-core research and proprietary stabilization mechanics are intentionally kept outside this repository.
+
+## Architecture Overview
 
 ```text
 CLIENT
 -> API
 -> LLM ADAPTER
+-> MODEL PROVIDER
 -> SEMANTIC DRIFT INTELLIGENCE
 -> PROJECTION ENGINE
 -> POLICY ENGINE
 -> GOVERNANCE MESH
--> FIREWALL
--> MEMORY
--> TELEMETRY
+-> OUTPUT FIREWALL
+-> RECURSIVE MEMORY
+-> LINEAGE GRAPH
+-> TELEMETRY MESH
 -> RESPONSE
+```
+
+```mermaid
+flowchart TD
+    A[Client] --> B[API Gateway]
+    B --> C[LLM Adapter]
+    C --> D[Model Provider]
+    D --> E[Semantic Drift Intelligence]
+    E --> F[Projection Engine]
+    F --> G[Policy Engine]
+    G --> H[Governance Mesh]
+    H --> I[Output Firewall]
+    I --> J[Recursive Memory]
+    J --> K[Lineage Graph]
+    K --> L[Telemetry Mesh]
+    L --> M[Response]
 ```
 
 ## Version History
