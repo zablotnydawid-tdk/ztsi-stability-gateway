@@ -1,0 +1,24 @@
+import json
+import uuid
+from datetime import datetime, timezone
+from pathlib import Path
+
+from .state import SemanticState
+
+
+DEFAULT_LOG_PATH = Path("runtime_logs") / "lineage.jsonl"
+
+
+def create_lineage_id() -> str:
+    return f"ztsi-{uuid.uuid4().hex}"
+
+
+def log_state(state: SemanticState, log_path: Path = DEFAULT_LOG_PATH) -> dict:
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    record = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        **state.to_dict(),
+    }
+    with log_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(record, sort_keys=True) + "\n")
+    return record

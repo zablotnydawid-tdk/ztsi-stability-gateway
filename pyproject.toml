@@ -1,0 +1,9 @@
+[project]
+name = "ztsi-stability-gateway"
+version = "0.1.0"
+description = "MVP AI Runtime Firewall / Cognitive Stability Gateway for ZT&SI."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "ZT&SI Stability Gateway" }
+]
