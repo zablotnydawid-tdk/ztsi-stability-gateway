@@ -19,5 +19,8 @@ def process(input_text: str, candidate_output: str) -> dict:
         state.drift_score,
     )
     state.final_status = apply_firewall(state.governance_status)
-    log_state(state)
-    return state.to_dict()
+    lineage_record = log_state(state)
+    result = state.to_dict()
+    result["firewall_status"] = state.final_status
+    result["timestamp"] = lineage_record["timestamp"]
+    return result

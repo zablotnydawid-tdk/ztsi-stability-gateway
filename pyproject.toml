@@ -1,9 +1,18 @@
 [project]
 name = "ztsi-stability-gateway"
-version = "0.1.0"
+version = "0.2.0"
 description = "MVP AI Runtime Firewall / Cognitive Stability Gateway for ZT&SI."
 readme = "README.md"
 requires-python = ">=3.10"
 authors = [
   { name = "ZT&SI Stability Gateway" }
+]
+dependencies = [
+  "fastapi>=0.110.0",
+  "uvicorn>=0.27.0"
+]
+
+[project.optional-dependencies]
+dev = [
+  "httpx>=0.28.0"
 ]

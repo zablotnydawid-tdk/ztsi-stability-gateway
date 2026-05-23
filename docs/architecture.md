@@ -18,6 +18,14 @@ Lineage Logger
 Certified Result Object
 ```
 
+## API Runtime Layer
+
+```text
+CLIENT -> API -> RUNTIME -> GOVERNANCE -> FIREWALL -> RESPONSE
+```
+
+The FastAPI layer receives runtime stability evaluation requests at `/evaluate`, forwards them into the existing ZT&SI runtime, returns a certified response object, and logs API response events to `runtime_logs/api_events.jsonl`.
+
 ## Modules
 
 - `state.py` defines `SemanticState`.
@@ -27,3 +35,6 @@ Certified Result Object
 - `firewall.py` converts governance decisions into allowed or blocked final status.
 - `lineage.py` creates lineage ids and writes JSONL audit records.
 - `runtime.py` orchestrates the full gateway flow.
+- `src/api/schemas.py` defines Pydantic request and response models.
+- `src/api/routes.py` defines `/health` and `/evaluate`.
+- `src/api/server.py` creates the FastAPI application, OpenAPI description, and timing middleware.

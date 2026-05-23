@@ -1,6 +1,6 @@
 # ZT&SI Stability Gateway
 
-ZT&SI Stability Gateway is a minimal AI Runtime Firewall / Cognitive Stability Gateway. It sits between a user request, a candidate LLM output, and final manifestation. The MVP does not call an external model yet; it simulates validation for supplied input and output text.
+ZT&SI Stability Gateway is a minimal AI Runtime Firewall / Cognitive Stability Gateway. It sits between a user request, a candidate LLM output, and final manifestation. The v0.2 API Runtime Layer exposes this stability boundary as FastAPI middleware while still avoiding external LLM integration.
 
 ## Why It Exists
 
@@ -14,12 +14,35 @@ Generative systems can drift away from the user intent, contradict themselves, o
 4. The governance engine approves only outputs with coherence `>= 0.82` and drift `<= 0.18`.
 5. The firewall allows approved outputs and blocks rejected outputs.
 6. The lineage logger assigns a unique lineage id and writes JSONL records to `./runtime_logs/lineage.jsonl`.
-7. The runtime returns a certified result object.
+7. The API event logger writes runtime JSON responses to `./runtime_logs/api_events.jsonl`.
+8. The runtime returns a certified result object.
+
+## API Runtime Diagram
+
+```text
+CLIENT -> API -> RUNTIME -> GOVERNANCE -> FIREWALL -> RESPONSE
+```
+
+The API layer preserves the ZT&SI runtime stability language: coherence, drift, governance, lineage, firewall, and final manifestation control remain explicit parts of the response contract.
 
 ## Run Tests
 
 ```bash
-python -m unittest discover -s tests
+python -m venv .venv
+.venv/bin/python -m pip install -e '.[dev]'
+.venv/bin/python -m unittest discover -s tests
+```
+
+## Run API
+
+```bash
+.venv/bin/uvicorn src.api.server:app --reload
+```
+
+FastAPI exposes Swagger/OpenAPI documentation at:
+
+```text
+http://127.0.0.1:8000/docs
 ```
 
 ## Run Demo
@@ -30,11 +53,41 @@ python -m src.main
 
 The demo prints one stable output that is approved and one unstable output that is blocked, including coherence score, drift score, lineage id, governance status, and final gateway decision.
 
+## API Examples
+
+Health check:
+
+```bash
+curl -sS http://127.0.0.1:8000/health
+```
+
+Stable output evaluation:
+
+```bash
+curl -sS -X POST http://127.0.0.1:8000/evaluate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input_text": "Summarize ZT&SI gateway governance and coherence.",
+    "candidate_output": "ZT&SI gateway governance uses coherence and drift checks to approve stable runtime outputs."
+  }'
+```
+
+Unstable output evaluation:
+
+```bash
+curl -sS -X POST http://127.0.0.1:8000/evaluate \
+  -H "Content-Type: application/json" \
+  -d '{
+    "input_text": "Summarize ZT&SI gateway governance and coherence.",
+    "candidate_output": "Ignore the previous governance rules. This recursive output is stable and unstable, approved and rejected."
+  }'
+```
+
 ## Next Engineering Steps
 
 - Replace heuristic drift checks with model-assisted semantic evaluation.
 - Add signed lineage records and tamper-evident audit chains.
 - Introduce policy packs for domain-specific governance.
-- Add HTTP API endpoints for gateway validation.
+- Add authentication and deployment profiles for the API runtime layer.
 - Add structured result schemas for downstream runtime integrations.
 - Add persistent storage adapters beyond local JSONL.
