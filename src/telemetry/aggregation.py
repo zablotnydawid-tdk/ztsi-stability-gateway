@@ -1,5 +1,7 @@
 from collections import Counter, defaultdict
 from datetime import datetime
+import json
+from pathlib import Path
 
 from .telemetry_store import TelemetryStore
 
@@ -42,6 +44,13 @@ class TelemetryAggregator:
             for event in events
             if event.get("stabilization_applied")
         )
+        agents_path = Path("runtime_memory") / "agents.json"
+        agents = json.loads(agents_path.read_text(encoding="utf-8")) if agents_path.exists() else {}
+        active_agents = sum(1 for agent in agents.values() if agent.get("status") == "ACTIVE")
+        frozen_agents = sum(1 for agent in agents.values() if agent.get("status") == "FROZEN")
+        quarantined_agents = sum(1 for agent in agents.values() if agent.get("status") == "QUARANTINED")
+        arbitration_log = Path("runtime_logs") / "arbitration_events.jsonl"
+        arbitration_count = len(arbitration_log.read_text(encoding="utf-8").splitlines()) if arbitration_log.exists() else 0
 
         return {
             "total_runtime_executions": total,
@@ -61,6 +70,11 @@ class TelemetryAggregator:
             "governance_counts": dict(governance_counts),
             "severity_distribution": dict(severity_counts),
             "lockdown_events": lockdown_events,
+            "active_agents": active_agents,
+            "frozen_agents": frozen_agents,
+            "quarantined_agents": quarantined_agents,
+            "agent_drift_budget_violations": frozen_agents,
+            "arbitration_count": arbitration_count,
             "stabilization_counts": dict(stabilization_counts),
             "coherence_trend": [event.get("coherence_score", 0.0) for event in events],
             "drift_trend": [event.get("drift_score", 0.0) for event in events],

@@ -1,6 +1,6 @@
 # ZT&SI Stability Gateway
 
-ZT&SI Stability Gateway is a minimal AI Runtime Firewall / Cognitive Stability Gateway. It sits between a user request, a candidate LLM output, and final manifestation. The v0.8 Policy Engine & Governance Ruleset makes runtime governance dynamically configurable with severity escalation and lockdown enforcement.
+ZT&SI Stability Gateway is a minimal AI Runtime Firewall / Cognitive Stability Gateway. It sits between a user request, a candidate LLM output, and final manifestation. The v0.9 Multi-Agent Governance Mesh treats agents as sandboxed cognition processes under shared runtime governance.
 
 ## Why It Exists
 
@@ -24,8 +24,10 @@ Generative systems can drift away from the user intent, contradict themselves, o
 14. The telemetry mesh emits runtime events to `./runtime_logs/telemetry.jsonl`.
 15. The policy engine evaluates configurable governance rules from `./policy/default_policy.yaml`.
 16. Policy violations are logged to `./runtime_logs/policy_violations.jsonl`.
-17. The dashboard layer renders runtime stability summaries and ASCII charts.
-18. The runtime returns a certified result object.
+17. The agent mesh enforces drift budgets, recursion quotas, permissions, and output rights.
+18. Agent, arbitration, and mesh events are logged under `./runtime_logs/`.
+19. The dashboard layer renders runtime stability summaries and ASCII charts.
+20. The runtime returns a certified result object.
 
 ## API Runtime Diagram
 
@@ -184,6 +186,42 @@ Lockdown activates on sovereign enforcement triggers such as excessive recursive
 
 Policy evaluation happens after projection revalidation and before firewall manifestation. That means ZT&SI can recover correctable states, then still enforce policy rules before any output is allowed.
 
+## v0.9 Multi-Agent Governance Mesh
+
+The Multi-Agent Governance Mesh supports multiple governed cognition processes instead of a single runtime path. Each agent runs inside a sandbox with explicit permissions, drift budget, recursion quota, memory scope, lineage scope, output rights, and status.
+
+```text
+CLIENT
+  -> AGENT REGISTRY
+  -> AGENT SANDBOX
+  -> LLM / CANDIDATE OUTPUT
+  -> DRIFT INTELLIGENCE
+  -> PROJECTION
+  -> POLICY ENGINE
+  -> GOVERNANCE MESH
+  -> ARBITRATION
+  -> FIREWALL
+  -> MEMORY
+  -> TELEMETRY
+  -> RESPONSE
+```
+
+## Agent Sandboxing
+
+The sandbox validates permission scope, drift budget, recursion quota, memory scope, lineage scope, and output rights. Violations freeze the agent and emit governance events.
+
+## Drift Budgets And Recursion Quotas
+
+Each agent accumulates drift usage and recursion depth. Agents that exceed their budget are frozen before their outputs can continue through the mesh.
+
+## Inter-Agent Arbitration
+
+Arbitration compares candidate outputs and selects the policy-compliant output with higher coherence, lower drift, stable lineage, and unblocked firewall status. Blocked outputs cannot win.
+
+## Mesh Health
+
+Mesh health is `STABLE`, `DEGRADED`, or `CRITICAL` based on active, frozen, quarantined, and blocked agent counts.
+
 ## Run Tests
 
 ```bash
@@ -211,7 +249,7 @@ python -m src.main
 ```
 
 The demo prints one stable output that is approved and one unstable output that is either stabilized or blocked, including coherence score, drift score, lineage id, governance status, and final gateway decision.
-In v0.8, CLI output also includes semantic similarity, contradiction score, recursive instability score, original drift, stabilized drift, stabilization delta, projection status, stabilization reason, policy severity, rule violations, lockdown state, lineage ancestry, snapshot creation, rollback availability, memory persistence status, runtime health, telemetry summary, coherence trend, drift trend, and governance counts.
+In v0.9, CLI output also includes semantic similarity, contradiction score, recursive instability score, original drift, stabilized drift, stabilization delta, projection status, stabilization reason, policy severity, rule violations, lockdown state, lineage ancestry, snapshot creation, rollback availability, memory persistence status, registered demo agents, agent evaluation, sandbox status, arbitration result, mesh health, runtime health, telemetry summary, coherence trend, drift trend, and governance counts.
 
 Run the mock LLM adapter demo:
 
@@ -307,6 +345,20 @@ Governance status:
 curl -sS http://127.0.0.1:8000/governance/status
 ```
 
+Register agent:
+
+```bash
+curl -sS -X POST http://127.0.0.1:8000/agents/register \
+  -H "Content-Type: application/json" \
+  -d '{"agent_id":"agent-a","role":"writer"}'
+```
+
+Mesh health:
+
+```bash
+curl -sS http://127.0.0.1:8000/mesh/health
+```
+
 ## Next Engineering Steps
 
 - Replace heuristic drift checks with model-assisted semantic evaluation.
@@ -316,5 +368,6 @@ curl -sS http://127.0.0.1:8000/governance/status
 - Add optional OpenAI and local model providers behind the LLM Adapter.
 - Add signed memory snapshots and graph integrity hashes.
 - Add export adapters for external observability systems.
+- Add cross-agent lineage permission policies.
 - Add structured result schemas for downstream runtime integrations.
 - Add persistent storage adapters beyond local JSONL.

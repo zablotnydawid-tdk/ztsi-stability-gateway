@@ -7,6 +7,9 @@ from src.telemetry.health import RuntimeHealthMonitor
 from src.telemetry.metrics import RuntimeTelemetryEngine
 from src.policy.loader import PolicyLoader
 from src.policy.registry import PolicyRegistry
+from src.agents.agent import AgentRuntime
+from src.agents.arbitration import AgentArbitrator
+from src.agents.mesh import GovernanceMesh
 
 
 def _print_result(title: str, result: dict) -> None:
@@ -59,6 +62,51 @@ def _print_telemetry() -> None:
     print(dashboard.generate()["charts"])
 
 
+def _print_agent_mesh_demo() -> None:
+    mesh = GovernanceMesh()
+    mesh.register_runtime_agent(
+        AgentRuntime(agent_id="demo-writer", role="writer", drift_budget=10.0)
+    )
+    mesh.register_runtime_agent(
+        AgentRuntime(agent_id="demo-critic", role="critic", drift_budget=10.0)
+    )
+    evaluation = mesh.evaluate_agent_execution(
+        "demo-writer",
+        "Explain ZT&SI runtime stability governance.",
+        (
+            "Explain ZT&SI runtime stability governance. "
+            "ZT&SI runtime stability governance preserves coherence, drift, lineage, "
+            "firewall validation, and final output manifestation."
+        ),
+    )
+    arbitration = AgentArbitrator().arbitrate(
+        [
+            {
+                "agent_id": "demo-writer",
+                "input_text": "Explain ZT&SI runtime stability governance.",
+                "candidate_output": (
+                    "Explain ZT&SI runtime stability governance. "
+                    "ZT&SI runtime stability governance preserves coherence, drift, lineage, "
+                    "firewall validation, and final output manifestation."
+                ),
+            },
+            {
+                "agent_id": "demo-critic",
+                "input_text": "Explain ZT&SI runtime stability governance.",
+                "candidate_output": "Here is a soup recipe and garden checklist.",
+            },
+        ]
+    )
+    print("\nAgent Governance Mesh")
+    print("---------------------")
+    print("Registered demo agents: demo-writer, demo-critic")
+    print(f"Agent evaluation status: {evaluation['agent_status']}")
+    print(f"Sandbox violations: {evaluation['sandbox_violations']}")
+    print(f"Arbitration winner: {arbitration['winning_agent_id']}")
+    print(f"Arbitration reason: {arbitration['arbitration_reason']}")
+    print(f"Mesh health: {mesh.compute_mesh_health()['mesh_health']}")
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="ZT&SI Stability Gateway CLI")
     parser.add_argument(
@@ -87,6 +135,7 @@ def main() -> None:
         _print_result("Generated Stable Response", stable_generated)
         _print_result("Generated Unstable Response", unstable_generated)
         _print_result("Recursive Follow-up Response", followup_generated)
+        _print_agent_mesh_demo()
         _print_telemetry()
         return
 

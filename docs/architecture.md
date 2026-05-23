@@ -74,6 +74,14 @@ CLIENT -> API -> LLM ADAPTER -> DRIFT INTELLIGENCE -> PROJECTION ENGINE -> POLIC
 
 The v0.8 policy engine loads configurable governance rules from `policy/default_policy.yaml`, evaluates runtime states, emits severity, logs policy violations, and supports lockdown enforcement before final manifestation.
 
+## Multi-Agent Governance Mesh
+
+```text
+CLIENT -> AGENT REGISTRY -> AGENT SANDBOX -> LLM / CANDIDATE OUTPUT -> DRIFT INTELLIGENCE -> PROJECTION -> POLICY ENGINE -> GOVERNANCE MESH -> ARBITRATION -> FIREWALL -> MEMORY -> TELEMETRY -> RESPONSE
+```
+
+The v0.9 mesh treats agents as sandboxed cognition processes governed by permissions, drift budgets, recursion quotas, lineage boundaries, policy enforcement, and inter-agent arbitration.
+
 ## Modules
 
 - `state.py` defines `SemanticState`.
@@ -112,3 +120,8 @@ The v0.8 policy engine loads configurable governance rules from `policy/default_
 - `src/policy/loader.py` loads and validates runtime governance policy.
 - `src/policy/evaluator.py` evaluates coherence, drift, contradiction, recursion, stabilization, and rollback rules.
 - `src/policy/engine.py` coordinates policy decisions, violation logging, and lockdown state.
+- `src/agents/registry.py` persists runtime agents.
+- `src/agents/sandbox.py` enforces agent boundaries.
+- `src/agents/budgets.py` tracks drift usage, recursion depth, output attempts, and blocked attempts.
+- `src/agents/arbitration.py` resolves competing agent outputs.
+- `src/agents/mesh.py` coordinates multi-agent governance and mesh health.

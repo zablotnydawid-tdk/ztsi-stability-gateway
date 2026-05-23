@@ -72,3 +72,50 @@ class RollbackResponse(BaseModel):
     restored_lineage_id: str
     restored_coherence: float
     rollback_reason: str
+
+
+class AgentRegisterRequest(BaseModel):
+    agent_id: str
+    role: str = "runtime"
+    permissions: list[str] = ["evaluate"]
+    recursion_quota: int = 3
+    drift_budget: float = 1.0
+    memory_scope: str = "local"
+    lineage_scope: str = "agent"
+    output_rights: bool = True
+
+
+class AgentEvaluateRequest(BaseModel):
+    agent_id: str
+    input_text: str
+    candidate_output: str
+
+
+class AgentEvaluateResponse(BaseModel):
+    agent_id: str
+    agent_status: str
+    coherence_score: float
+    drift_score: float
+    policy_severity: str
+    sandbox_violations: list
+    governance_status: str
+    firewall_status: str
+    final_status: str
+
+
+class ArbitrationCandidate(BaseModel):
+    agent_id: str
+    input_text: str
+    candidate_output: str
+
+
+class ArbitrationRequest(BaseModel):
+    candidates: list[ArbitrationCandidate]
+
+
+class ArbitrationResponse(BaseModel):
+    winning_agent_id: str
+    winning_lineage_id: str
+    arbitration_reason: str
+    candidate_count: int
+    blocked_candidates: int

@@ -13,6 +13,9 @@ DRIFT_METRICS_LOG_PATH = Path("runtime_logs") / "drift_metrics.jsonl"
 STABILIZATION_EVENTS_LOG_PATH = Path("runtime_logs") / "stabilization_events.jsonl"
 MEMORY_EVENTS_LOG_PATH = Path("runtime_logs") / "memory_events.jsonl"
 ROLLBACK_EVENTS_LOG_PATH = Path("runtime_logs") / "rollback_events.jsonl"
+AGENT_EVENTS_LOG_PATH = Path("runtime_logs") / "agent_events.jsonl"
+ARBITRATION_EVENTS_LOG_PATH = Path("runtime_logs") / "arbitration_events.jsonl"
+MESH_EVENTS_LOG_PATH = Path("runtime_logs") / "mesh_events.jsonl"
 
 
 def create_lineage_id() -> str:
@@ -95,6 +98,39 @@ def log_memory_event(event: dict, log_path: Path = MEMORY_EVENTS_LOG_PATH) -> di
 
 
 def log_rollback_event(event: dict, log_path: Path = ROLLBACK_EVENTS_LOG_PATH) -> dict:
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    record = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        **event,
+    }
+    with log_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(record, sort_keys=True) + "\n")
+    return record
+
+
+def log_agent_event(event: dict, log_path: Path = AGENT_EVENTS_LOG_PATH) -> dict:
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    record = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        **event,
+    }
+    with log_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(record, sort_keys=True) + "\n")
+    return record
+
+
+def log_arbitration_event(event: dict, log_path: Path = ARBITRATION_EVENTS_LOG_PATH) -> dict:
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    record = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        **event,
+    }
+    with log_path.open("a", encoding="utf-8") as handle:
+        handle.write(json.dumps(record, sort_keys=True) + "\n")
+    return record
+
+
+def log_mesh_event(event: dict, log_path: Path = MESH_EVENTS_LOG_PATH) -> dict:
     log_path.parent.mkdir(parents=True, exist_ok=True)
     record = {
         "timestamp": datetime.now(timezone.utc).isoformat(),

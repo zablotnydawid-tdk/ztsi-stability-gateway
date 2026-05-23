@@ -1,6 +1,11 @@
 from fastapi import APIRouter, HTTPException
 
 from src.api.schemas import (
+    AgentEvaluateRequest,
+    AgentEvaluateResponse,
+    AgentRegisterRequest,
+    ArbitrationRequest,
+    ArbitrationResponse,
     EvaluateRequest,
     EvaluateResponse,
     GenerateRequest,
@@ -8,6 +13,10 @@ from src.api.schemas import (
     HealthResponse,
     RollbackResponse,
 )
+from src.agents.agent import AgentRuntime
+from src.agents.arbitration import AgentArbitrator
+from src.agents.mesh import GovernanceMesh
+from src.agents.registry import AgentRegistry
 from src.gateway.lineage import log_api_event
 from src.gateway.runtime import process
 from src.llm.adapter import LLMAdapter
@@ -261,3 +270,76 @@ def governance_status() -> dict:
 @router.get("/governance/violations", tags=["policy"])
 def governance_violations(limit: int = 20) -> list[dict]:
     return PolicyEngine().recent_violations(limit=limit)
+
+
+@router.post("/agents/register", tags=["agents"])
+def register_agent(request: AgentRegisterRequest) -> dict:
+    return GovernanceMesh().register_runtime_agent(
+        AgentRuntime(
+            agent_id=request.agent_id,
+            role=request.role,
+            permissions=request.permissions,
+            recursion_quota=request.recursion_quota,
+            drift_budget=request.drift_budget,
+            memory_scope=request.memory_scope,
+            lineage_scope=request.lineage_scope,
+            output_rights=request.output_rights,
+        )
+    )
+
+
+@router.get("/agents", tags=["agents"])
+def list_agents() -> list[dict]:
+    return AgentRegistry().list_agents()
+
+
+@router.get("/agents/{agent_id}", tags=["agents"])
+def get_agent(agent_id: str) -> dict:
+    agent = AgentRegistry().get_agent(agent_id)
+    if agent is None:
+        raise HTTPException(status_code=404, detail="Agent not found.")
+    return agent
+
+
+@router.post(
+    "/agents/{agent_id}/evaluate",
+    response_model=AgentEvaluateResponse,
+    tags=["agents"],
+)
+def evaluate_agent(agent_id: str, request: AgentEvaluateRequest) -> AgentEvaluateResponse:
+    result = GovernanceMesh().evaluate_agent_execution(
+        agent_id=agent_id,
+        input_text=request.input_text,
+        candidate_output=request.candidate_output,
+    )
+    return AgentEvaluateResponse(
+        agent_id=result["agent_id"],
+        agent_status=result["agent_status"],
+        coherence_score=result["coherence_score"],
+        drift_score=result["drift_score"],
+        policy_severity=result["policy_severity"],
+        sandbox_violations=result["sandbox_violations"],
+        governance_status=result["governance_status"],
+        firewall_status=result["firewall_status"],
+        final_status=result["final_status"],
+    )
+
+
+@router.post(
+    "/agents/arbitrate",
+    response_model=ArbitrationResponse,
+    tags=["agents"],
+)
+def arbitrate_agents(request: ArbitrationRequest) -> ArbitrationResponse:
+    result = AgentArbitrator().arbitrate([candidate.model_dump() for candidate in request.candidates])
+    return ArbitrationResponse(**result)
+
+
+@router.get("/mesh/status", tags=["agents"])
+def mesh_status() -> dict:
+    return GovernanceMesh().track_agent_stability()
+
+
+@router.get("/mesh/health", tags=["agents"])
+def mesh_health() -> dict:
+    return GovernanceMesh().compute_mesh_health()
