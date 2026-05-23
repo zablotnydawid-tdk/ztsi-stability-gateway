@@ -4,15 +4,23 @@ from .governance import evaluate_governance
 from .lineage import (
     create_lineage_id,
     log_drift_metrics,
+    log_memory_event,
     log_stabilization_event,
     log_state,
 )
 from .state import SemanticState
 from src.intelligence.scoring import DriftIntelligenceScorer
+from src.memory.lineage_graph import LineageGraph
+from src.memory.semantic_memory import SemanticMemoryStore
+from src.memory.snapshots import SnapshotManager
 from src.stabilization.projection import ProjectionEngine
 
 
-def process(input_text: str, candidate_output: str) -> dict:
+def process(
+    input_text: str,
+    candidate_output: str,
+    parent_state_id: str | None = None,
+) -> dict:
     scorer = DriftIntelligenceScorer()
     state = SemanticState(
         input_text=input_text,
@@ -83,4 +91,30 @@ def process(input_text: str, candidate_output: str) -> dict:
     result = state.to_dict()
     result["firewall_status"] = state.final_status
     result["timestamp"] = lineage_record["timestamp"]
+
+    memory_store = SemanticMemoryStore()
+    lineage_graph = LineageGraph()
+    snapshot_manager = SnapshotManager()
+    memory_record = memory_store.store_state(result, parent_state_id=parent_state_id)
+    lineage_graph.add_state(memory_record)
+    lineage_graph.connect_parent(state.lineage_id, parent_state_id)
+    snapshot = snapshot_manager.create_snapshot(memory_record)
+    ancestry = lineage_graph.get_ancestry(state.lineage_id)
+    result["memory_persisted"] = True
+    result["parent_state_id"] = parent_state_id
+    result["lineage_ancestry"] = ancestry
+    result["lineage_path"] = lineage_graph.reconstruct_path(state.lineage_id)
+    result["snapshot_created"] = snapshot is not None
+    result["rollback_available"] = snapshot is not None or bool(ancestry)
+    log_memory_event(
+        {
+            "lineage_id": state.lineage_id,
+            "parent_state_id": parent_state_id,
+            "lineage_growth": len(result["lineage_path"]),
+            "stable_snapshot_count": snapshot_manager.snapshot_count(),
+            "unstable_state_frequency": 1 if state.governance_status != "APPROVED" else 0,
+            "memory_persisted": True,
+            "snapshot_created": result["snapshot_created"],
+        }
+    )
     return result

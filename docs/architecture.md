@@ -50,6 +50,14 @@ CLIENT -> LLM -> DRIFT INTELLIGENCE -> PROJECTION ENGINE -> REVALIDATION -> GOVE
 
 The v0.5 projection engine attempts bounded semantic recovery before final rejection. Correctable contradictions and recursive instability are normalized, re-scored, and sent through governance. Stabilization events are logged to `runtime_logs/stabilization_events.jsonl`.
 
+## Recursive Memory & Lineage Graph
+
+```text
+CLIENT -> LLM -> DRIFT INTELLIGENCE -> PROJECTION -> GOVERNANCE -> FIREWALL -> MEMORY STORE -> LINEAGE GRAPH -> SNAPSHOT -> RESPONSE
+```
+
+The v0.6 memory engine persists cognition states to `runtime_memory/`, updates a directed semantic lineage graph, creates stable snapshots, and supports rollback to the nearest stable semantic ancestor.
+
 ## Modules
 
 - `state.py` defines `SemanticState`.
@@ -76,3 +84,8 @@ The v0.5 projection engine attempts bounded semantic recovery before final rejec
 - `src/stabilization/recovery.py` removes recursive instability and runaway recursion patterns.
 - `src/stabilization/normalization.py` normalizes projected text.
 - `src/stabilization/policies.py` defines projection modes.
+- `src/memory/semantic_memory.py` persists runtime cognition states.
+- `src/memory/lineage_graph.py` reconstructs ancestry and descendants.
+- `src/memory/snapshots.py` creates stable checkpoints.
+- `src/memory/rollback.py` restores nearest stable semantic ancestors.
+- `src/memory/retrieval.py` provides recent, stable, unstable, and lineage-specific memory retrieval.

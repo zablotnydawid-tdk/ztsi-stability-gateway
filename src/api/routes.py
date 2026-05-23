@@ -6,11 +6,15 @@ from src.api.schemas import (
     GenerateRequest,
     GenerateResponse,
     HealthResponse,
+    RollbackResponse,
 )
 from src.gateway.lineage import log_api_event
 from src.gateway.runtime import process
 from src.llm.adapter import LLMAdapter
 from src.llm.providers import UnknownProviderError
+from src.memory.lineage_graph import LineageGraph
+from src.memory.retrieval import MemoryRetrievalEngine
+from src.memory.rollback import RollbackEngine
 
 router = APIRouter()
 
@@ -40,6 +44,9 @@ def evaluate(request: EvaluateRequest) -> EvaluateResponse:
         lineage_id=result["lineage_id"],
         timestamp=result["timestamp"],
         final_status=result["final_status"],
+        memory_persisted=result["memory_persisted"],
+        snapshot_created=result["snapshot_created"],
+        rollback_available=result["rollback_available"],
     )
     log_api_event(
         {
@@ -91,6 +98,9 @@ def generate(request: GenerateRequest) -> GenerateResponse:
         lineage_id=result["lineage_id"],
         timestamp=result["timestamp"],
         final_status=result["final_status"],
+        memory_persisted=result["memory_persisted"],
+        snapshot_created=result["snapshot_created"],
+        rollback_available=result["rollback_available"],
     )
     log_api_event(
         {
@@ -110,3 +120,42 @@ def generate(request: GenerateRequest) -> GenerateResponse:
         }
     )
     return response
+
+
+@router.get("/memory/recent", tags=["recursive memory"])
+def memory_recent(limit: int = 10) -> list[dict]:
+    return MemoryRetrievalEngine().retrieve_recent(limit=limit)
+
+
+@router.get("/memory/stable", tags=["recursive memory"])
+def memory_stable() -> list[dict]:
+    return MemoryRetrievalEngine().retrieve_stable_states()
+
+
+@router.get("/memory/unstable", tags=["recursive memory"])
+def memory_unstable() -> list[dict]:
+    return MemoryRetrievalEngine().retrieve_unstable_states()
+
+
+@router.get("/memory/lineage/{lineage_id}", tags=["recursive memory"])
+def memory_lineage(lineage_id: str) -> dict:
+    state = MemoryRetrievalEngine().retrieve_by_lineage(lineage_id)
+    if state is None:
+        raise HTTPException(status_code=404, detail="Lineage state not found.")
+    graph = LineageGraph()
+    return {
+        "state": state,
+        "ancestry": graph.get_ancestry(lineage_id),
+        "path": graph.reconstruct_path(lineage_id),
+        "descendants": graph.get_descendants(lineage_id),
+    }
+
+
+@router.post(
+    "/rollback/{lineage_id}",
+    response_model=RollbackResponse,
+    tags=["recursive memory"],
+)
+def rollback(lineage_id: str) -> RollbackResponse:
+    result = RollbackEngine().rollback(lineage_id)
+    return RollbackResponse(**result)

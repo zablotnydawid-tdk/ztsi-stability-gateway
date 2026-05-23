@@ -1,6 +1,6 @@
 # ZT&SI Stability Gateway
 
-ZT&SI Stability Gateway is a minimal AI Runtime Firewall / Cognitive Stability Gateway. It sits between a user request, a candidate LLM output, and final manifestation. The v0.5 Projection & Runtime Stabilization Engine attempts bounded semantic recovery before final rejection.
+ZT&SI Stability Gateway is a minimal AI Runtime Firewall / Cognitive Stability Gateway. It sits between a user request, a candidate LLM output, and final manifestation. The v0.6 Recursive Memory & Lineage Graph Engine preserves recoverable semantic cognition trajectories across execution time.
 
 ## Why It Exists
 
@@ -18,7 +18,10 @@ Generative systems can drift away from the user intent, contradict themselves, o
 8. The LLM Adapter logger writes generated response events to `./runtime_logs/generate_events.jsonl`.
 9. The drift metrics logger writes semantic runtime metrics to `./runtime_logs/drift_metrics.jsonl`.
 10. The stabilization logger writes projection events to `./runtime_logs/stabilization_events.jsonl`.
-11. The runtime returns a certified result object.
+11. The memory engine persists cognition states to `./runtime_memory/`.
+12. The lineage graph connects recursive state ancestry.
+13. Stable snapshots are stored in `./runtime_memory/snapshots/`.
+14. The runtime returns a certified result object.
 
 ## API Runtime Diagram
 
@@ -74,6 +77,39 @@ Blocking rejects unstable outputs immediately after governance. Stabilizing atte
 
 Homeostatic projection is the runtime stability concept behind v0.5: the gateway attempts to restore a bounded stable semantic state before final manifestation.
 
+## v0.6 Recursive Memory
+
+The Recursive Memory layer persists every runtime cognition state locally. This creates a recoverable semantic history that can be inspected, queried, and rolled back to stable snapshots.
+
+```text
+CLIENT
+  -> LLM
+  -> DRIFT INTELLIGENCE
+  -> PROJECTION
+  -> GOVERNANCE
+  -> FIREWALL
+  -> MEMORY STORE
+  -> LINEAGE GRAPH
+  -> SNAPSHOT
+  -> RESPONSE
+```
+
+## Lineage Graph
+
+The lineage graph represents runtime states as a directed semantic graph. A state may reference a `parent_state_id`, allowing ZT&SI to reconstruct ancestry, descendants, and deterministic semantic trajectories.
+
+## Rollback Mechanics
+
+Rollback searches a state's ancestry for the nearest stable snapshot. Only approved, allowed, high-coherence states become snapshots. Unstable states are persisted for observability, but they are not snapshotted.
+
+## Snapshot Architecture
+
+Snapshots are stored under `runtime_memory/snapshots/` and are created only when governance is `APPROVED`, firewall is `ALLOWED`, and coherence is at least `0.82`.
+
+## Semantic Trajectory Tracking
+
+ZT&SI now tracks how cognition evolves across runtime executions: raw input, projection, governance, firewall status, memory persistence, graph ancestry, and rollback availability.
+
 ## Run Tests
 
 ```bash
@@ -101,7 +137,7 @@ python -m src.main
 ```
 
 The demo prints one stable output that is approved and one unstable output that is either stabilized or blocked, including coherence score, drift score, lineage id, governance status, and final gateway decision.
-In v0.5, CLI output also includes semantic similarity, contradiction score, recursive instability score, original drift, stabilized drift, stabilization delta, projection status, and stabilization reason.
+In v0.6, CLI output also includes semantic similarity, contradiction score, recursive instability score, original drift, stabilized drift, stabilization delta, projection status, stabilization reason, lineage ancestry, snapshot creation, rollback availability, and memory persistence status.
 
 Run the mock LLM adapter demo:
 
@@ -161,6 +197,18 @@ curl -sS -X POST http://127.0.0.1:8000/generate \
   }'
 ```
 
+Recent memory:
+
+```bash
+curl -sS http://127.0.0.1:8000/memory/recent
+```
+
+Rollback:
+
+```bash
+curl -sS -X POST http://127.0.0.1:8000/rollback/{lineage_id}
+```
+
 ## Next Engineering Steps
 
 - Replace heuristic drift checks with model-assisted semantic evaluation.
@@ -168,5 +216,6 @@ curl -sS -X POST http://127.0.0.1:8000/generate \
 - Introduce policy packs for domain-specific governance.
 - Add authentication and deployment profiles for the API runtime layer.
 - Add optional OpenAI and local model providers behind the LLM Adapter.
+- Add signed memory snapshots and graph integrity hashes.
 - Add structured result schemas for downstream runtime integrations.
 - Add persistent storage adapters beyond local JSONL.

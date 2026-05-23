@@ -30,6 +30,9 @@ result = process(
     "lineage_id": str,
     "timestamp": str,
     "final_status": "ALLOWED" | "BLOCKED",
+    "memory_persisted": bool,
+    "snapshot_created": bool,
+    "rollback_available": bool,
 }
 ```
 
@@ -82,7 +85,10 @@ Response:
   "firewall_status": "ALLOWED",
   "lineage_id": "ztsi-example",
   "timestamp": "2026-05-23T00:00:00+00:00",
-  "final_status": "ALLOWED"
+  "final_status": "ALLOWED",
+  "memory_persisted": true,
+  "snapshot_created": true,
+  "rollback_available": true
 }
 ```
 
@@ -115,11 +121,43 @@ Response:
   "firewall_status": "ALLOWED",
   "lineage_id": "ztsi-example",
   "timestamp": "2026-05-23T00:00:00+00:00",
-  "final_status": "ALLOWED"
+  "final_status": "ALLOWED",
+  "memory_persisted": true,
+  "snapshot_created": true,
+  "rollback_available": true
 }
 ```
 
 Unknown providers return HTTP `400` with a clear error message. The default provider is `mock`.
+
+### GET /memory/recent
+
+Returns recent persisted cognition states.
+
+### GET /memory/stable
+
+Returns approved and allowed memory states.
+
+### GET /memory/unstable
+
+Returns rejected or blocked memory states.
+
+### GET /memory/lineage/{lineage_id}
+
+Returns a persisted state with ancestry, path, and descendants.
+
+### POST /rollback/{lineage_id}
+
+Response:
+
+```json
+{
+  "rollback_performed": true,
+  "restored_lineage_id": "ztsi-example",
+  "restored_coherence": 0.9,
+  "rollback_reason": "nearest_stable_snapshot_restored"
+}
+```
 
 ## Governance Rule
 

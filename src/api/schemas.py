@@ -20,6 +20,9 @@ class EvaluateResponse(BaseModel):
     lineage_id: str
     timestamp: str
     final_status: str
+    memory_persisted: bool
+    snapshot_created: bool
+    rollback_available: bool
 
 
 class HealthResponse(BaseModel):
@@ -47,7 +50,17 @@ class GenerateResponse(BaseModel):
     lineage_id: str
     timestamp: str
     final_status: str
+    memory_persisted: bool
+    snapshot_created: bool
+    rollback_available: bool
 
 
 class ErrorResponse(BaseModel):
     detail: str
+
+
+class RollbackResponse(BaseModel):
+    rollback_performed: bool
+    restored_lineage_id: str
+    restored_coherence: float
+    rollback_reason: str
