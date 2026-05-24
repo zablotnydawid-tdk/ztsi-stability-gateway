@@ -72,6 +72,28 @@ When using the included virtual environment on Linux or WSL:
 .venv/bin/uvicorn src.api.server:app --reload
 ```
 
+## Governance Validation Layer
+
+The `validation/` directory provides a controlled runtime governance laboratory for deterministic degradation testing. It validates runtime scenarios, governance replay, policy stress, telemetry integrity, and repository boundary enforcement without adding new intelligence layers or private sovereign-core mechanics.
+
+```bash
+.venv/bin/python validation/runtime/scenario_harness.py
+.venv/bin/python validation/replay/replay_engine.py
+.venv/bin/python validation/policies/stress_framework.py
+.venv/bin/python validation/telemetry/integrity_validation.py
+.venv/bin/python validation/boundary/boundary_audit.py
+```
+
+## Governance Validation Evidence Pack
+
+The Evidence Pack turns local validation runs into a repeatable Markdown snapshot of runtime degradation behavior. It is not a certificate, not an external audit, and not a production security guarantee. It records test status, validation modules executed, degradation cases, replay mismatches, telemetry integrity, boundary findings, and a final governance readiness statement.
+
+```bash
+.venv/bin/python validation/evidence/generate_evidence_pack.py
+```
+
+The generated report is written to `validation/evidence/EVIDENCE_PACK.md`.
+
 ## Why It Exists
 
 Generative systems can drift away from the user intent, contradict themselves, or produce unstable recursive language. This gateway provides a small control plane for detecting semantic drift, calculating coherence, enforcing governance rules, logging lineage, and blocking unstable outputs before they are manifested.
